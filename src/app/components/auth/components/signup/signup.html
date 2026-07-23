@@ -1,5 +1,5 @@
-<form [formGroup]="signupForm" (ngSubmit)="onSignupSubmit()" novalidate>
-  
+<form [formGroup]="signupForm"  novalidate>
+
   <!-- Full Name -->
   <div class="mb-3">
     <label class="form-label fw-semibold small">Full Name</label>
@@ -11,7 +11,7 @@
         type="text"
         class="form-control"
         formControlName="fullName"
-        placeholder="John Doe">
+        placeholder="Enter your full name">
     </div>
     <small
       class="text-danger small mt-1 d-block"
@@ -36,7 +36,7 @@
         type="email"
         class="form-control"
         formControlName="email"
-        placeholder="name@example.com">
+        placeholder="Enter your email">
     </div>
     <small
       class="text-danger small mt-1 d-block"
@@ -109,7 +109,7 @@
 
   <!-- Sign Up Submit Button -->
   <button type="submit" class="btn btn-primary w-100 py-2 fw-semibold shadow-sm">
-    Create Account
+    Sign Up
   </button>
 
   <!-- Switch to Login -->

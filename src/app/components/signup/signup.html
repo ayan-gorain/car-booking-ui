@@ -1,1 +1,134 @@
-<p>signup works!</p>
+<div class="container-fluid vh-100 d-flex justify-content-center align-items-center">
+
+  <div class="card shadow-lg p-4" style="width: 420px;">
+
+    <h2 class="text-center mb-4">Sign Up</h2>
+
+    <form [formGroup]="signupForm" (ngSubmit)="onSubmit()">
+
+      <!-- Full Name -->
+      <div class="mb-3">
+        <label class="form-label">Full Name</label>
+        <input
+          type="text"
+          class="form-control"
+          formControlName="fullName"
+          placeholder="Enter your full name">
+
+        <small
+          class="text-danger"
+          *ngIf="signupForm.get('fullName')?.touched && signupForm.get('fullName')?.hasError('required')">
+          Full Name is required.
+        </small>
+
+        <small
+          class="text-danger"
+          *ngIf="signupForm.get('fullName')?.touched && signupForm.get('fullName')?.hasError('minlength')">
+          Minimum 3 characters required.
+        </small>
+      </div>
+
+      <!-- Email -->
+      <div class="mb-3">
+        <label class="form-label">Email</label>
+        <input
+          type="email"
+          class="form-control"
+          formControlName="email"
+          placeholder="Enter your email">
+
+        <small
+          class="text-danger"
+          *ngIf="signupForm.get('email')?.touched && signupForm.get('email')?.hasError('required')">
+          Email is required.
+        </small>
+
+        <small
+          class="text-danger"
+          *ngIf="signupForm.get('email')?.touched && signupForm.get('email')?.hasError('email')">
+          Enter a valid email.
+        </small>
+      </div>
+
+      <!-- Password -->
+      <div class="mb-3">
+        <label class="form-label">Password</label>
+
+        <div class="input-group">
+          <input
+            [type]="showPassword ? 'text' : 'password'"
+            class="form-control"
+            formControlName="password"
+            placeholder="Enter password">
+
+          <button
+            type="button"
+            class="btn btn-outline-secondary"
+            (click)="showPassword = !showPassword">
+
+            <i
+              class="bi"
+              [class.bi-eye]="!showPassword"
+              [class.bi-eye-slash]="showPassword">
+            </i>
+
+          </button>
+        </div>
+
+        <small
+          class="text-danger"
+          *ngIf="signupForm.get('password')?.touched && signupForm.get('password')?.hasError('required')">
+          Password is required.
+        </small>
+
+        <small
+          class="text-danger"
+          *ngIf="signupForm.get('password')?.touched && signupForm.get('password')?.hasError('minlength')">
+          Password must be at least 6 characters.
+        </small>
+      </div>
+
+      <!-- Confirm Password -->
+      <div class="mb-4">
+        <label class="form-label">Confirm Password</label>
+
+        <div class="input-group">
+          <input
+            [type]="showConfirmPassword ? 'text' : 'password'"
+            class="form-control"
+            formControlName="confirmPassword"
+            placeholder="Confirm password">
+
+          <button
+            type="button"
+            class="btn btn-outline-secondary"
+            (click)="showConfirmPassword = !showConfirmPassword">
+
+            <i
+              class="bi"
+              [class.bi-eye]="!showConfirmPassword"
+              [class.bi-eye-slash]="showConfirmPassword">
+            </i>
+
+          </button>
+        </div>
+
+        <small
+          class="text-danger"
+          *ngIf="signupForm.get('confirmPassword')?.touched && signupForm.get('confirmPassword')?.hasError('required')">
+          Confirm Password is required.
+        </small>
+      </div>
+
+      <!-- Submit Button -->
+      <button
+        type="submit"
+        class="btn btn-primary w-100">
+        Sign Up
+      </button>
+
+    </form>
+
+  </div>
+
+</div>

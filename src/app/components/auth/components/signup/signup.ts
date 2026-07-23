@@ -1,6 +1,9 @@
 import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Output } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
+
+
 
 @Component({
   selector: 'app-signup',
@@ -15,8 +18,13 @@ export class Signup {
   signupForm: FormGroup;
   showSignupPassword = false;
   showConfirmPassword = false;
+  signupError: string | null = null;
 
-  constructor(private fb: FormBuilder) {
+  constructor(
+    private fb: FormBuilder,
+   
+    private router: Router
+  ) {
     this.signupForm = this.fb.group({
       fullName: ['', [Validators.required, Validators.minLength(3)]],
       email: ['', [Validators.required, Validators.email]],
@@ -25,13 +33,6 @@ export class Signup {
     });
   }
 
-  onSignupSubmit() {
-    if (this.signupForm.valid) {
-      console.log('Signup submitted:', this.signupForm.value);
-    } else {
-      this.signupForm.markAllAsTouched();
-    }
-  }
 
   onSwitchToLogin() {
     this.switchToLogin.emit();

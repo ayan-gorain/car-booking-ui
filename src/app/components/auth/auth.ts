@@ -1,7 +1,8 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
-import { Login } from '../login/login';
-import { Signup } from '../signup/signup';
+import { Login } from './components/login/login';
+import { Signup } from './components/signup/signup';
+
 
 @Component({
   selector: 'app-auth',

@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, EventEmitter, Output } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 
 @Component({
@@ -10,8 +10,10 @@ import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angula
   styleUrl: './signup.css',
 })
 export class Signup {
+  @Output() switchToLogin = new EventEmitter<void>();
+
   signupForm: FormGroup;
-  showPassword = false;
+  showSignupPassword = false;
   showConfirmPassword = false;
 
   constructor(private fb: FormBuilder) {
@@ -23,11 +25,15 @@ export class Signup {
     });
   }
 
-  onSubmit() {
+  onSignupSubmit() {
     if (this.signupForm.valid) {
-      console.log(this.signupForm.value);
+      console.log('Signup submitted:', this.signupForm.value);
     } else {
       this.signupForm.markAllAsTouched();
     }
+  }
+
+  onSwitchToLogin() {
+    this.switchToLogin.emit();
   }
 }

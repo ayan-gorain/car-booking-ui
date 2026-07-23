@@ -1,13 +1,14 @@
 import { Component, signal } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { Signup } from "./components/signup/signup";
+import { Auth } from './components/auth/auth';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, Signup],
+  imports: [RouterOutlet, Auth],
   templateUrl: './app.html',
   styleUrl: './app.css'
 })
 export class App {
   protected readonly title = signal('car-booking-ui');
 }
+

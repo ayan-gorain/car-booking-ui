@@ -7,7 +7,7 @@ import { Router, RouterModule } from '@angular/router';
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [ReactiveFormsModule, CommonModule  ],
+  imports: [ReactiveFormsModule, CommonModule,RouterModule ],
   templateUrl: './login.html',
   styleUrl: './login.css',
 })

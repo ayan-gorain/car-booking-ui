@@ -1,40 +1,116 @@
-<div class="sidebar-nav bg-white border-end shadow-sm d-flex flex-column p-2"
-  [style.width]="isExpanded ? '220px' : '66px'"
-  style="height: calc(100vh - 56px); overflow: hidden;">
+<div
+  class="d-flex flex-column flex-shrink-0 p-3 text-bg-dark vh-100"
+  [style.width]="isExpanded ? '250px' : '80px'">
 
-  <!-- Toggle button -->
-  <div class="d-flex" [class.justify-content-end]="isExpanded" [class.justify-content-center]="!isExpanded"
-    style="padding: 6px 4px 10px;">
-    <button class="btn btn-light btn-sm rounded-3 border" (click)="toggleSlidebar()" title="Toggle sidebar">
-      <i class="bi" [class.bi-layout-sidebar-inset-reverse]="isExpanded"
-                    [class.bi-layout-sidebar-inset]="!isExpanded"></i>
+  <!-- Header -->
+  <div class="d-flex justify-content-between align-items-center">
+
+    <h5 class="m-0" *ngIf="isExpanded">
+      Dashboard
+    </h5>
+
+    <button
+      class="btn btn-outline-light btn-sm ms-2"
+      (click)="toggleSlidebar()">
+
+      <i
+        class="bi"
+        [class.bi-list]="!isExpanded"
+        [class.bi-x-lg]="isExpanded">
+      </i>
+
     </button>
+
   </div>
 
-  <hr class="my-1 border-secondary-subtle">
+  <hr>
 
-  <!-- Menu Items -->
-  <ul class="nav flex-column gap-1 flex-grow-1 px-1 mt-1">
-    <li *ngFor="let menu of menus">
-      <button
-        class="sidebar-menu-item btn w-100 d-flex align-items-center gap-2 py-2 px-2"
-        [class.btn-primary]="activeMenu === menu.name"
-        [class.text-primary]="activeMenu !== menu.name"
-        [class.btn-light]="activeMenu !== menu.name"
-        (click)="selectMenu(menu.name)"
-        [title]="menu.name">
-        <i class="bi {{ menu.icon }} fs-5 flex-shrink-0"></i>
-        <span *ngIf="isExpanded" class="fw-semibold small text-truncate">{{ menu.name }}</span>
+  <ul class="nav nav-pills flex-column">
+
+    <li class="mb-2">
+
+      <button class="btn btn-dark w-100 text-start">
+
+        <i class="bi bi-speedometer2"></i>
+
+        <span class="ms-2" *ngIf="isExpanded">
+          Dashboard
+        </span>
+
       </button>
-    </li>
-  </ul>
 
-  <!-- Bottom brand -->
-  <div *ngIf="isExpanded" class="mt-auto px-2 pb-2">
-    <div class="bg-primary bg-opacity-10 rounded-3 p-2 text-center">
-      <i class="bi bi-car-front-fill text-primary fs-5"></i>
-      <p class="text-primary fw-semibold small mb-0 mt-1">Car Booking</p>
-    </div>
-  </div>
+    </li>
+
+    <li class="mb-2">
+
+      <button class="btn btn-dark w-100 text-start">
+
+        <i class="bi bi-people"></i>
+
+        <span class="ms-2" *ngIf="isExpanded">
+          Users
+        </span>
+
+      </button>
+
+    </li>
+
+    <li class="mb-2">
+
+      <button class="btn btn-dark w-100 text-start">
+
+        <i class="bi bi-box-seam"></i>
+
+        <span class="ms-2" *ngIf="isExpanded">
+          Products
+        </span>
+
+      </button>
+
+    </li>
+
+    <li class="mb-2">
+
+      <button class="btn btn-dark w-100 text-start">
+
+        <i class="bi bi-cart3"></i>
+
+        <span class="ms-2" *ngIf="isExpanded">
+          Orders
+        </span>
+
+      </button>
+
+    </li>
+
+    <li class="mb-2">
+
+      <button class="btn btn-dark w-100 text-start">
+
+        <i class="bi bi-bar-chart"></i>
+
+        <span class="ms-2" *ngIf="isExpanded">
+          Reports
+        </span>
+
+      </button>
+
+    </li>
+
+    <li class="mb-2">
+
+      <button class="btn btn-dark w-100 text-start">
+
+        <i class="bi bi-gear"></i>
+
+        <span class="ms-2" *ngIf="isExpanded">
+          Settings
+        </span>
+
+      </button>
+
+    </li>
+
+  </ul>
 
 </div>

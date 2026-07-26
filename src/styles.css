@@ -1,1 +1,83 @@
-/* You can add global styles to this file, and also import other style files */
+/* ── Global Theme (matches auth pages) ── */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+  font-family: 'Inter', system-ui, sans-serif;
+  background-color: #f0f2f5;
+  color: #1a1a2e;
+}
+
+/* ── Sidebar Transitions ── */
+.sidebar-nav {
+  transition: width 0.25s ease;
+}
+
+/* ── City / Time slot hover effects ── */
+.city-card-btn:hover {
+  border-color: #0d6efd !important;
+  background-color: #f0f6ff !important;
+  transition: all 0.15s ease;
+}
+
+.time-btn {
+  min-width: 90px;
+  transition: all 0.15s ease;
+}
+
+.time-btn.active {
+  background-color: #0d6efd;
+  border-color: #0d6efd;
+  color: #fff;
+}
+
+.time-btn:not(.active):hover {
+  border-color: #0d6efd;
+  color: #0d6efd;
+}
+
+/* ── Swap button spin ── */
+.swap-btn {
+  width: 40px;
+  height: 40px;
+  transition: transform 0.35s ease;
+  flex-shrink: 0;
+}
+.swap-btn:hover:not(:disabled) { transform: rotate(180deg); }
+
+/* ── City chip hover in modal ── */
+.city-chip {
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.city-chip:hover {
+  border-color: #0d6efd !important;
+  background-color: #e7f1ff !important;
+}
+
+/* ── Sidebar menu item ── */
+.sidebar-menu-item {
+  border: none;
+  text-align: left;
+  transition: all 0.15s ease;
+  border-radius: 10px !important;
+}
+
+/* ── Step badge ── */
+.step-connector {
+  flex: 1;
+  height: 2px;
+  background: #dee2e6;
+  margin: 0 6px;
+  position: relative;
+  top: -12px;
+}
+.step-connector.done { background: #0d6efd; }
+
+/* ── Confirmation pulse ── */
+@keyframes pop-in {
+  0%   { transform: scale(0.85); opacity: 0; }
+  100% { transform: scale(1);    opacity: 1; }
+}
+.confirm-anim { animation: pop-in 0.35s cubic-bezier(.34,1.56,.64,1); }

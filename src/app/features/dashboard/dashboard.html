@@ -1,5 +1,87 @@
 <app-navbar></app-navbar>
 
-<div class="d-flex">
-  <app-slidebar></app-slidebar>
+<div class="d-flex" style="height: calc(100vh - 56px); overflow: hidden;">
+
+  <!-- Sidebar -->
+  <app-slidebar [activeMenu]="activeMenu" (menuSelected)="setMenu($event)"></app-slidebar>
+
+  <!-- Main Content -->
+  <main class="flex-grow-1 overflow-auto p-4" style="background:#f0f2f5;">
+
+    <!-- Page Header -->
+    <div class="d-flex align-items-center justify-content-between mb-4">
+      <div>
+        <h4 class="fw-bold mb-0 text-dark">
+          <i class="bi {{ getMenuIcon() }} text-primary me-2"></i>{{ activeMenu }}
+        </h4>
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb mb-0">
+            <li class="breadcrumb-item"><span class="text-muted small">Dashboard</span></li>
+            <li class="breadcrumb-item active small" aria-current="page">{{ activeMenu }}</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+
+    <!-- Car Booking -->
+    @if (activeMenu === 'Car Booking') {
+      <div class="card shadow-sm border-0 rounded-4">
+        <div class="card-body p-4">
+          <app-carbooking></app-carbooking>
+        </div>
+      </div>
+    }
+
+    <!-- Dashboard Home -->
+    @if (activeMenu === 'Dashboard') {
+      <div class="row g-4">
+        <div class="col-md-3">
+          <div class="card border-0 shadow-sm rounded-4 text-center p-3">
+            <div class="bg-primary bg-opacity-10 rounded-3 d-inline-flex align-items-center justify-content-center mx-auto mb-2" style="width:48px;height:48px;">
+              <i class="bi bi-car-front-fill text-primary fs-5"></i>
+            </div>
+            <h5 class="fw-bold mb-0">24</h5>
+            <p class="text-muted small mb-0">Total Bookings</p>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="card border-0 shadow-sm rounded-4 text-center p-3">
+            <div class="bg-success bg-opacity-10 rounded-3 d-inline-flex align-items-center justify-content-center mx-auto mb-2" style="width:48px;height:48px;">
+              <i class="bi bi-people-fill text-success fs-5"></i>
+            </div>
+            <h5 class="fw-bold mb-0">12</h5>
+            <p class="text-muted small mb-0">Active Users</p>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="card border-0 shadow-sm rounded-4 text-center p-3">
+            <div class="bg-warning bg-opacity-10 rounded-3 d-inline-flex align-items-center justify-content-center mx-auto mb-2" style="width:48px;height:48px;">
+              <i class="bi bi-clock-fill text-warning fs-5"></i>
+            </div>
+            <h5 class="fw-bold mb-0">5</h5>
+            <p class="text-muted small mb-0">Pending Rides</p>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="card border-0 shadow-sm rounded-4 text-center p-3">
+            <div class="bg-danger bg-opacity-10 rounded-3 d-inline-flex align-items-center justify-content-center mx-auto mb-2" style="width:48px;height:48px;">
+              <i class="bi bi-currency-rupee text-danger fs-5"></i>
+            </div>
+            <h5 class="fw-bold mb-0">₹18,400</h5>
+            <p class="text-muted small mb-0">Revenue</p>
+          </div>
+        </div>
+      </div>
+    }
+
+    <!-- Placeholder for other menus -->
+    @if (activeMenu !== 'Car Booking' && activeMenu !== 'Dashboard') {
+      <div class="card border-0 shadow-sm rounded-4 text-center p-5">
+        <i class="bi bi-tools fs-1 text-muted"></i>
+        <h5 class="fw-bold mt-3">{{ activeMenu }}</h5>
+        <p class="text-muted">This section is under construction.</p>
+      </div>
+    }
+
+  </main>
 </div>

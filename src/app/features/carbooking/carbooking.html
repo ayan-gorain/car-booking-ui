@@ -1,0 +1,137 @@
+<div class="container-fluid p-0">
+
+  <!-- ── 5-Step Progress Stepper ── -->
+  <div class="d-flex align-items-center justify-content-between mb-4 px-2">
+
+    <!-- Step 1: Route -->
+    <div class="d-flex flex-column align-items-center">
+      <div class="rounded-circle d-flex align-items-center justify-content-center fw-bold shadow-sm"
+        style="width: 38px; height: 38px; font-size: 13px;"
+        [class.bg-primary]="currentStep >= 1"
+        [class.text-white]="currentStep >= 1"
+        [class.bg-light]="currentStep < 1"
+        [class.text-muted]="currentStep < 1">
+        @if (currentStep > 1) { <i class="bi bi-check-lg fs-5"></i> } @else { 1 }
+      </div>
+      <span class="small mt-2 fw-semibold" style="font-size: 11px;" [class.text-primary]="currentStep === 1" [class.text-muted]="currentStep !== 1">
+        1. Route
+      </span>
+    </div>
+
+    <div class="flex-grow-1 mx-2 rounded" style="height: 3px;" [class.bg-primary]="currentStep > 1" [class.bg-secondary-subtle]="currentStep <= 1"></div>
+
+    <!-- Step 2: Schedule -->
+    <div class="d-flex flex-column align-items-center">
+      <div class="rounded-circle d-flex align-items-center justify-content-center fw-bold shadow-sm"
+        style="width: 38px; height: 38px; font-size: 13px;"
+        [class.bg-primary]="currentStep >= 2"
+        [class.text-white]="currentStep >= 2"
+        [class.bg-light]="currentStep < 2"
+        [class.text-muted]="currentStep < 2">
+        @if (currentStep > 2) { <i class="bi bi-check-lg fs-5"></i> } @else { 2 }
+      </div>
+      <span class="small mt-2 fw-semibold" style="font-size: 11px;" [class.text-primary]="currentStep === 2" [class.text-muted]="currentStep !== 2">
+        2. Schedule
+      </span>
+    </div>
+
+    <div class="flex-grow-1 mx-2 rounded" style="height: 3px;" [class.bg-primary]="currentStep > 2" [class.bg-secondary-subtle]="currentStep <= 2"></div>
+
+    <!-- Step 3: Choose Car -->
+    <div class="d-flex flex-column align-items-center">
+      <div class="rounded-circle d-flex align-items-center justify-content-center fw-bold shadow-sm"
+        style="width: 38px; height: 38px; font-size: 13px;"
+        [class.bg-primary]="currentStep >= 3"
+        [class.text-white]="currentStep >= 3"
+        [class.bg-light]="currentStep < 3"
+        [class.text-muted]="currentStep < 3">
+        @if (currentStep > 3) { <i class="bi bi-check-lg fs-5"></i> } @else { 3 }
+      </div>
+      <span class="small mt-2 fw-semibold" style="font-size: 11px;" [class.text-primary]="currentStep === 3" [class.text-muted]="currentStep !== 3">
+        3. Choose Car
+      </span>
+    </div>
+
+    <div class="flex-grow-1 mx-2 rounded" style="height: 3px;" [class.bg-primary]="currentStep > 3" [class.bg-secondary-subtle]="currentStep <= 3"></div>
+
+    <!-- Step 4: Review -->
+    <div class="d-flex flex-column align-items-center">
+      <div class="rounded-circle d-flex align-items-center justify-content-center fw-bold shadow-sm"
+        style="width: 38px; height: 38px; font-size: 13px;"
+        [class.bg-primary]="currentStep >= 4"
+        [class.text-white]="currentStep >= 4"
+        [class.bg-light]="currentStep < 4"
+        [class.text-muted]="currentStep < 4">
+        @if (currentStep > 4) { <i class="bi bi-check-lg fs-5"></i> } @else { 4 }
+      </div>
+      <span class="small mt-2 fw-semibold" style="font-size: 11px;" [class.text-primary]="currentStep === 4" [class.text-muted]="currentStep !== 4">
+        4. Review
+      </span>
+    </div>
+
+    <div class="flex-grow-1 mx-2 rounded" style="height: 3px;" [class.bg-success]="currentStep === 5" [class.bg-secondary-subtle]="currentStep <= 4"></div>
+
+    <!-- Step 5: Confirmation -->
+    <div class="d-flex flex-column align-items-center">
+      <div class="rounded-circle d-flex align-items-center justify-content-center fw-bold shadow-sm"
+        style="width: 38px; height: 38px; font-size: 13px;"
+        [class.bg-success]="currentStep === 5"
+        [class.text-white]="currentStep === 5"
+        [class.bg-light]="currentStep < 5"
+        [class.text-muted]="currentStep < 5">
+        <i class="bi bi-shield-check fs-6"></i>
+      </div>
+      <span class="small mt-2 fw-semibold" style="font-size: 11px;" [class.text-success]="currentStep === 5" [class.text-muted]="currentStep !== 5">
+        5. Confirmed
+      </span>
+    </div>
+
+  </div>
+
+
+  <!-- ── Dynamic Step Views ── -->
+  @if (currentStep === 1) {
+    <app-route-step
+      [state]="state"
+      [countries]="countries"
+      [allCities]="allCities"
+      (nextStep)="goToStep(2)">
+    </app-route-step>
+  }
+
+  @if (currentStep === 2) {
+    <app-schedule-step
+      [state]="state"
+      [timeSlots]="timeSlots"
+      (nextStep)="goToStep(3)"
+      (prevStep)="goToStep(1)">
+    </app-schedule-step>
+  }
+
+  @if (currentStep === 3) {
+    <app-car-selection-step
+      [state]="state"
+      [carCategories]="carCategories"
+      (nextStep)="goToStep(4)"
+      (prevStep)="goToStep(2)">
+    </app-car-selection-step>
+  }
+
+  @if (currentStep === 4) {
+    <app-review-step
+      [state]="state"
+      [countries]="countries"
+      (prevStep)="goToStep(3)"
+      (confirmBooking)="confirmBooking()">
+    </app-review-step>
+  }
+
+  @if (currentStep === 5) {
+    <app-confirmation-step
+      [state]="state"
+      [countries]="countries"
+      (resetBooking)="resetBooking()">
+    </app-confirmation-step>
+  }
+
+</div>

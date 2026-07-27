@@ -21,9 +21,9 @@ export class ReviewStep {
   }
 
   get calculatedPrice(): number {
-    if (!this.state.selectedCar) return 0;
+    if (!this.state.selectedSharedCab) return 0;
     const mult = this.state.tripType === 'round-trip' ? 1.8 : 1.0;
-    return Math.round(this.state.selectedCar.basePrice * mult);
+    return Math.round(this.state.selectedSharedCab.farePerSeat * (this.state.seatCount ?? 1) * mult);
   }
 
   onPrev() {

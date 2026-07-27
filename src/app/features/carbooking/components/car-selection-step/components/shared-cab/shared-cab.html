@@ -1,0 +1,165 @@
+<div class="row g-3">
+  @for (cab of sharedCabs; track cab.id) {
+    <div class="col-md-6">
+      <div class="card h-100 rounded-4 p-4 border-2 shadow-sm position-relative"
+        [class.bg-white]="getCabTimeStatus(cab) === 'upcoming' && !isSelected(cab)"
+        [class.border-primary]="isSelected(cab)"
+        [class.bg-primary-subtle]="isSelected(cab)"
+        [class.bg-light]="getCabTimeStatus(cab) === 'past' && !isSelected(cab)"
+        [class.border-secondary-subtle]="getCabTimeStatus(cab) === 'past' && !isSelected(cab)"
+        [class.opacity-75]="getCabTimeStatus(cab) === 'past' && !isSelected(cab)"
+        [class.border-success]="getCabTimeStatus(cab) === 'nearest' && !isSelected(cab)"
+        [class.bg-success-subtle]="getCabTimeStatus(cab) === 'nearest' && !isSelected(cab)">
+
+        <!-- Top Header -->
+        <div class="d-flex align-items-start justify-content-between mb-3">
+          <div class="d-flex align-items-center gap-3">
+            <div class="rounded-3 p-3 d-inline-flex text-white"
+              [class.bg-primary]="getCabTimeStatus(cab) !== 'past'"
+              [class.bg-secondary]="getCabTimeStatus(cab) === 'past'">
+              <i class="bi bi-truck-front-fill fs-2"></i>
+            </div>
+            <div>
+              <h5 class="fw-bold mb-0 text-dark">{{ cab.vehicleName }}</h5>
+              <p class="text-muted small mb-0">
+                <span class="fw-semibold">{{ cab.cabNumber }}</span> • {{ cab.vehicleType }}
+              </p>
+            </div>
+          </div>
+
+          <div class="d-flex flex-column align-items-end gap-2">
+            <span class="badge bg-dark rounded-pill px-3 py-2 fw-semibold">
+              <i class="bi bi-star-fill text-warning me-1"></i>{{ cab.rating }}
+            </span>
+            @if (getCabTimeStatus(cab) === 'past') {
+              <span class="badge bg-secondary text-white rounded-pill px-2 py-1 fw-bold" style="font-size: 10px;">
+                <i class="bi bi-exclamation-triangle-fill me-1"></i>Departed
+              </span>
+            } @else if (getCabTimeStatus(cab) === 'nearest') {
+              <span class="badge bg-success text-white rounded-pill px-2 py-1 fw-bold" style="font-size: 10px;">
+                <i class="bi bi-lightning-charge-fill me-1"></i>Nearest Cab
+              </span>
+            }
+          </div>
+        </div>
+
+        <!-- Driver / Departure -->
+        <div class="d-flex flex-wrap align-items-center gap-3 text-secondary mb-3 small bg-white p-2 rounded-3 border">
+          <span class="fw-semibold text-dark"><i class="bi bi-person-badge-fill me-1 text-primary"></i>{{ cab.driverName }}</span>
+          <span class="fw-semibold text-dark"><i class="bi bi-clock-fill me-1 text-primary"></i>{{ cab.departureTime }}</span>
+        </div>
+
+        <!-- Tracking & Location Details (Radius < 10 km) -->
+        <div class="mb-3">
+          <div class="row g-2">
+            <!-- Distance & Direction -->
+            <div class="col-6">
+              <div class="p-2 border rounded-3 bg-light d-flex align-items-center gap-2">
+                <i class="bi bi-geo-alt-fill text-danger fs-5"></i>
+                <div>
+                  <div class="text-muted" style="font-size: 9px; text-transform: uppercase; font-weight: bold;">Distance (Radius)</div>
+                  <div class="fw-bold text-dark" style="font-size: 11px;">{{ cab.distanceFromUser }} km ({{ cab.directionFromUser }})</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Start Time -->
+            <div class="col-6">
+              <div class="p-2 border rounded-3 bg-light d-flex align-items-center gap-2">
+                <i class="bi bi-play-circle-fill text-success fs-5"></i>
+                <div>
+                  <div class="text-muted" style="font-size: 9px; text-transform: uppercase; font-weight: bold;">Started At</div>
+                  <div class="fw-bold text-dark" style="font-size: 11px;">{{ cab.startTime }}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Location details row 2 -->
+          <div class="row g-2 mt-1">
+            <!-- Nearest Pickup Point -->
+            <div class="col-6">
+              <div class="p-2 border rounded-3 bg-success-subtle bg-opacity-25 border-success-subtle d-flex align-items-center gap-2 h-100">
+                <i class="bi bi-pin-angle-fill text-success fs-5"></i>
+                <div>
+                  <div class="text-success fw-bold" style="font-size: 9px; text-transform: uppercase;">Nearest Pickup</div>
+                  <div class="fw-bold text-dark" style="font-size: 11px;">{{ cab.nearestPickupPoint }}</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Reach By Time -->
+            <div class="col-6">
+              <div class="p-2 border rounded-3 bg-light d-flex align-items-center gap-2 h-100">
+                <i class="bi bi-alarm-fill text-warning fs-5"></i>
+                <div>
+                  <div class="text-muted" style="font-size: 9px; text-transform: uppercase; font-weight: bold;">Reach Pickup By</div>
+                  <div class="fw-bold text-dark" style="font-size: 11px;">{{ cab.reachPickupTime }}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Seat status -->
+        <div class="mb-3">
+          <div class="d-flex align-items-center justify-content-between mb-2">
+            <span class="small fw-semibold text-dark">
+              <i class="bi bi-person-lines-fill me-1 text-primary"></i>
+              {{ cab.availableSeats }} / {{ cab.totalSeats }} Seats Available
+            </span>
+          </div>
+          <div class="d-flex flex-wrap gap-2">
+            @for (seat of cab.seats; track seat.id) {
+              <span class="badge rounded-pill px-2 py-1 border"
+                [class.bg-success-subtle]="seat.status === 'available'"
+                [class.text-success]="seat.status === 'available'"
+                [class.border-success]="seat.status === 'available'"
+                [class.bg-danger-subtle]="seat.status === 'booked'"
+                [class.text-danger]="seat.status === 'booked'"
+                [class.border-danger]="seat.status === 'booked'">
+                {{ seat.id }}
+              </span>
+            }
+          </div>
+        </div>
+
+        <!-- Price / Actions Footer -->
+        <div class="d-flex align-items-center justify-content-between pt-3 border-top mt-auto">
+          <div>
+            <span class="text-muted small d-block">Fare per Seat</span>
+            <span class="fw-bold text-primary fs-4">₹{{ cab.farePerSeat }}</span>
+          </div>
+
+          <div class="d-flex align-items-center gap-2">
+            @if (isSelected(cab)) {
+              <span class="badge bg-success-subtle text-success border border-success rounded-pill px-3 py-2 fw-semibold small">
+                <i class="bi bi-check-circle-fill me-1"></i>Selected
+              </span>
+            }
+
+            <button type="button"
+              class="btn rounded-3 px-4 fw-bold"
+              [class.btn-primary]="!isSelected(cab)"
+              [class.btn-outline-success]="isSelected(cab)"
+              [disabled]="cab.availableSeats === 0 || getCabTimeStatus(cab) === 'past'"
+              (click)="onChooseSeat(cab, $event)">
+              @if (getCabTimeStatus(cab) === 'past') {
+                <i class="bi bi-x-circle me-1"></i>Not Available
+              } @else if (cab.availableSeats === 0) {
+                Fully Booked
+              } @else if (isSelected(cab)) {
+                <i class="bi bi-check2-circle me-1"></i>Change Selection
+              } @else {
+                <i class="bi bi-cursor-fill me-1"></i>Select This Cab
+              }
+            </button>
+          </div>
+        </div>
+
+
+
+      </div>
+    </div>
+  }
+</div>

@@ -1,0 +1,151 @@
+@if (!cab) {
+  <div class="text-center text-muted py-5">
+    <i class="bi bi-grid-3x3-gap fs-1 d-block mb-2 text-secondary"></i>
+    Select a shared cab first to choose your seat.
+  </div>
+} @else {
+
+  <!-- Selected Cab Info -->
+  <div class="card rounded-4 p-3 mb-4 border-0 bg-light">
+    <div class="d-flex flex-wrap align-items-center justify-content-between gap-2">
+      <div class="d-flex align-items-center gap-3">
+        <div class="bg-primary text-white rounded-3 p-3 d-inline-flex">
+          <i class="bi bi-truck-front-fill fs-2"></i>
+        </div>
+        <div>
+          <h5 class="fw-bold mb-0 text-dark">{{ cab.vehicleName }}</h5>
+          <p class="text-muted small mb-0">
+            {{ cab.cabNumber }} • {{ cab.driverName }} • {{ cab.departureTime }}
+          </p>
+        </div>
+      </div>
+      <div class="text-end">
+        <span class="fw-bold text-primary fs-5">₹{{ cab.farePerSeat }} <span class="fs-6 text-muted fw-normal">/ seat</span></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Seat-count instruction -->
+  <div class="alert alert-info rounded-4 d-flex align-items-center gap-2 mb-4 py-2 px-3">
+    <i class="bi bi-info-circle-fill text-primary"></i>
+    <span class="small fw-semibold">
+      Please select <strong>{{ seatCount }}</strong> seat{{ seatCount > 1 ? 's' : '' }}
+      &nbsp;—&nbsp;
+      <span [class.text-success]="canProceed" [class.text-danger]="!canProceed">
+        {{ selectedSeats.length }} / {{ seatCount }} chosen
+      </span>
+    </span>
+  </div>
+
+  <!-- Legend -->
+  <div class="d-flex align-items-center gap-4 mb-4 small fw-semibold text-dark">
+    <span class="d-flex align-items-center gap-2"><span class="seat-dot seat-available"></span>Available</span>
+    <span class="d-flex align-items-center gap-2"><span class="seat-dot seat-booked"></span>Booked</span>
+    <span class="d-flex align-items-center gap-2"><span class="seat-dot seat-selected"></span>Your Seat(s)</span>
+  </div>
+
+  <!-- Vehicle Seat Layout -->
+  <div class="card rounded-4 p-4 border-2 bg-white mx-auto" style="max-width: 360px;">
+
+    <!-- Driver -->
+    <div class="d-flex justify-content-end mb-4">
+      <div class="d-flex flex-column align-items-center text-muted small">
+        <i class="bi bi-steering-wheel fs-3"></i>
+        Driver
+      </div>
+    </div>
+
+    <!-- Rows -->
+    <div class="d-flex flex-column gap-3">
+      @for (r of rows; track r.row) {
+        <div class="d-flex justify-content-center gap-3">
+          @for (seat of r.seats; track trackBySeat($index, seat)) {
+            <button type="button"
+              class="seat-btn"
+              [class.seat-available]="seat.status === 'available' && !isChosen(seat)"
+              [class.seat-booked]="seat.status === 'booked'"
+              [class.seat-selected]="isChosen(seat)"
+              [disabled]="seat.status === 'booked'"
+              (click)="selectSeat(seat)">
+              {{ seat.id }}
+            </button>
+          }
+        </div>
+      }
+    </div>
+  </div>
+
+  <!-- Summary -->
+  @if (selectedSeats.length > 0) {
+    <div class="card rounded-4 border-0 bg-success-subtle mt-4 p-3">
+      <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+        <div>
+          <p class="fw-bold text-success mb-1">
+            <i class="bi bi-check-circle-fill me-1"></i>
+            {{ selectedSeats.length }} seat{{ selectedSeats.length > 1 ? 's' : '' }} selected
+          </p>
+          <p class="text-muted small mb-0">
+            Seats:&nbsp;
+            @for (s of selectedSeats; track s.id) {
+              <span class="badge bg-primary rounded-pill me-1">{{ s.id }}</span>
+            }
+          </p>
+        </div>
+        <div class="text-end">
+          <span class="text-muted small d-block">Total Fare</span>
+          <span class="fw-bold fs-4 text-success">₹{{ totalFare }}</span>
+        </div>
+      </div>
+
+      @if (canProceed) {
+        <button type="button" class="btn btn-success rounded-3 fw-bold mt-3 w-100 py-2"
+          (click)="onProceed()">
+          Proceed to Review <i class="bi bi-arrow-right ms-2"></i>
+        </button>
+      }
+    </div>
+  }
+}
+
+<style>
+  .seat-dot {
+    width: 14px;
+    height: 14px;
+    border-radius: 4px;
+    display: inline-block;
+  }
+  .seat-dot.seat-available { background-color: #d1f5e0; border: 1px solid #22c55e; }
+  .seat-dot.seat-booked { background-color: #fbd5d5; border: 1px solid #ef4444; }
+  .seat-dot.seat-selected { background-color: #cfe0ff; border: 1px solid #3b6ff5; }
+
+  .seat-btn {
+    width: 56px;
+    height: 56px;
+    border-radius: 12px;
+    font-weight: 700;
+    font-size: 0.85rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.1s ease, box-shadow 0.1s ease;
+  }
+  .seat-btn:not(:disabled):hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.12); }
+
+  .seat-btn.seat-available {
+    background-color: #d1f5e0;
+    border: 2px solid #22c55e;
+    color: #15803d;
+  }
+  .seat-btn.seat-booked {
+    background-color: #fbd5d5;
+    border: 2px solid #ef4444;
+    color: #b91c1c;
+    cursor: not-allowed;
+  }
+  .seat-btn.seat-selected {
+    background-color: #3b6ff5;
+    border: 2px solid #3b6ff5;
+    color: #fff;
+    box-shadow: 0 0 0 3px rgba(59,111,245,0.25);
+  }
+</style>

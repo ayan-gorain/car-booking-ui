@@ -1,13 +1,12 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
-import { Country, City, TimeSlot, CarCategory, BookingState } from './models/booking.model';
+import { Country, City, TimeSlot, BookingState } from './models/booking.model';
 import { RouteStep } from './components/route-step/route-step';
-import { ScheduleStep } from './components/schedule-step/schedule-step';
 import { CarSelectionStep } from './components/car-selection-step/car-selection-step';
 import { ReviewStep } from './components/review-step/review-step';
 import { ConfirmationStep } from './components/confirmation-step/confirmation-step';
-import { CAR_CATEGORIES, CITIES, COUNTRIES, TIME_SLOTS } from './constants';
+import { CITIES, COUNTRIES, TIME_SLOTS } from './constants';
 
 @Component({
   selector: 'app-carbooking',
@@ -15,7 +14,6 @@ import { CAR_CATEGORIES, CITIES, COUNTRIES, TIME_SLOTS } from './constants';
   imports: [
     CommonModule,
     RouteStep,
-    ScheduleStep,
     CarSelectionStep,
     ReviewStep,
     ConfirmationStep
@@ -27,12 +25,8 @@ export class Carbooking {
   currentStep: number = 1;
 
   countries: Country[] = COUNTRIES;
-
   allCities: City[] = CITIES;
-
   timeSlots: TimeSlot[] = TIME_SLOTS;
-
-  carCategories: CarCategory[] = CAR_CATEGORIES;
 
   state: BookingState = {
     selectedCountry: 'IN',
@@ -45,7 +39,10 @@ export class Carbooking {
     returnDate: '',
     selectedTime: null,
     returnTime: null,
-    selectedCar: null,
+    selectedSharedCab: null,
+    selectedSeat: null,
+    selectedSeats: [],
+    seatCount: 1,
     bookingRefId: 'CB-' + Math.floor(100000 + Math.random() * 900000)
   };
 
@@ -55,7 +52,7 @@ export class Carbooking {
 
   confirmBooking() {
     this.state.bookingRefId = 'CB-' + Math.floor(100000 + Math.random() * 900000);
-    this.currentStep = 5;
+    this.currentStep = 4;
   }
 
   resetBooking() {
@@ -70,7 +67,10 @@ export class Carbooking {
       returnDate: '',
       selectedTime: null,
       returnTime: null,
-      selectedCar: null,
+      selectedSharedCab: null,
+      selectedSeat: null,
+      selectedSeats: [],
+      seatCount: 1,
       bookingRefId: 'CB-' + Math.floor(100000 + Math.random() * 900000)
     };
     this.currentStep = 1;

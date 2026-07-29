@@ -1,8 +1,12 @@
-<form [formGroup]="signupForm"  novalidate>
+<form
+  [formGroup]="signupForm"
+  (ngSubmit)="onSignup()"
+  novalidate
+>
 
-  <!-- Full Name -->
+  <!-- First Name -->
   <div class="mb-3">
-    <label class="form-label fw-semibold small">Full Name</label>
+    <label class="form-label fw-semibold small">First Name</label>
     <div class="input-group">
       <span class="input-group-text bg-white text-secondary">
         <i class="bi bi-person"></i>
@@ -10,18 +14,35 @@
       <input
         type="text"
         class="form-control"
-        formControlName="fullName"
-        placeholder="Enter your full name">
+        formControlName="firstName"
+        placeholder="Enter your first name">
     </div>
+
     <small
       class="text-danger small mt-1 d-block"
-      *ngIf="signupForm.get('fullName')?.touched && signupForm.get('fullName')?.hasError('required')">
-      Full Name is required.
+      *ngIf="signupForm.get('firstName')?.touched && signupForm.get('firstName')?.hasError('required')">
+      First Name is required.
     </small>
+  </div>
+
+  <!-- Last Name -->
+  <div class="mb-3">
+    <label class="form-label fw-semibold small">Last Name</label>
+    <div class="input-group">
+      <span class="input-group-text bg-white text-secondary">
+        <i class="bi bi-person"></i>
+      </span>
+      <input
+        type="text"
+        class="form-control"
+        formControlName="lastName"
+        placeholder="Enter your last name">
+    </div>
+
     <small
       class="text-danger small mt-1 d-block"
-      *ngIf="signupForm.get('fullName')?.touched && signupForm.get('fullName')?.hasError('minlength')">
-      Minimum 3 characters required.
+      *ngIf="signupForm.get('lastName')?.touched && signupForm.get('lastName')?.hasError('required')">
+      Last Name is required.
     </small>
   </div>
 
@@ -38,15 +59,44 @@
         formControlName="email"
         placeholder="Enter your email">
     </div>
+
     <small
       class="text-danger small mt-1 d-block"
       *ngIf="signupForm.get('email')?.touched && signupForm.get('email')?.hasError('required')">
       Email is required.
     </small>
+
     <small
       class="text-danger small mt-1 d-block"
       *ngIf="signupForm.get('email')?.touched && signupForm.get('email')?.hasError('email')">
       Please enter a valid email address.
+    </small>
+  </div>
+
+  <!-- Phone Number -->
+  <div class="mb-3">
+    <label class="form-label fw-semibold small">Phone Number</label>
+    <div class="input-group">
+      <span class="input-group-text bg-white text-secondary">
+        <i class="bi bi-telephone"></i>
+      </span>
+      <input
+        type="text"
+        class="form-control"
+        formControlName="phoneNumber"
+        placeholder="Enter your phone number">
+    </div>
+
+    <small
+      class="text-danger small mt-1 d-block"
+      *ngIf="signupForm.get('phoneNumber')?.touched && signupForm.get('phoneNumber')?.hasError('required')">
+      Phone Number is required.
+    </small>
+
+    <small
+      class="text-danger small mt-1 d-block"
+      *ngIf="signupForm.get('phoneNumber')?.touched && signupForm.get('phoneNumber')?.hasError('pattern')">
+      Please enter a valid 10-digit phone number.
     </small>
   </div>
 
@@ -57,23 +107,33 @@
       <span class="input-group-text bg-white text-secondary">
         <i class="bi bi-lock"></i>
       </span>
+
       <input
         [type]="showSignupPassword ? 'text' : 'password'"
         class="form-control"
         formControlName="password"
         placeholder="Create password">
+
       <button
         type="button"
         class="btn btn-outline-secondary"
         (click)="showSignupPassword = !showSignupPassword">
-        <i class="bi" [class.bi-eye]="!showSignupPassword" [class.bi-eye-slash]="showSignupPassword"></i>
+
+        <i
+          class="bi"
+          [class.bi-eye]="!showSignupPassword"
+          [class.bi-eye-slash]="showSignupPassword">
+        </i>
+
       </button>
     </div>
+
     <small
       class="text-danger small mt-1 d-block"
       *ngIf="signupForm.get('password')?.touched && signupForm.get('password')?.hasError('required')">
       Password is required.
     </small>
+
     <small
       class="text-danger small mt-1 d-block"
       *ngIf="signupForm.get('password')?.touched && signupForm.get('password')?.hasError('minlength')">
@@ -82,24 +142,33 @@
   </div>
 
   <!-- Confirm Password -->
-  <div class="mb-4">
+  <div class="mb-3">
     <label class="form-label fw-semibold small">Confirm Password</label>
     <div class="input-group">
       <span class="input-group-text bg-white text-secondary">
         <i class="bi bi-shield-check"></i>
       </span>
+
       <input
         [type]="showConfirmPassword ? 'text' : 'password'"
         class="form-control"
         formControlName="confirmPassword"
         placeholder="Confirm password">
+
       <button
         type="button"
         class="btn btn-outline-secondary"
         (click)="showConfirmPassword = !showConfirmPassword">
-        <i class="bi" [class.bi-eye]="!showConfirmPassword" [class.bi-eye-slash]="showConfirmPassword"></i>
+
+        <i
+          class="bi"
+          [class.bi-eye]="!showConfirmPassword"
+          [class.bi-eye-slash]="showConfirmPassword">
+        </i>
+
       </button>
     </div>
+
     <small
       class="text-danger small mt-1 d-block"
       *ngIf="signupForm.get('confirmPassword')?.touched && signupForm.get('confirmPassword')?.hasError('required')">
@@ -107,15 +176,30 @@
     </small>
   </div>
 
-  <!-- Sign Up Submit Button -->
-  <button type="submit" class="btn btn-primary w-100 py-2 fw-semibold shadow-sm">
+  <!-- API Error -->
+  <div
+    class="alert alert-danger"
+    *ngIf="signupError">
+    {{ signupError }}
+  </div>
+
+  <!-- Submit Button -->
+  <button
+    type="submit"
+    class="btn btn-primary w-100 py-2 fw-semibold shadow-sm"
+    [disabled]="signupForm.invalid">
     Sign Up
   </button>
 
   <!-- Switch to Login -->
   <p class="text-center small text-secondary mt-4 mb-0">
     Already have an account?
-    <a href="javascript:void(0)" (click)="onSwitchToLogin()" class="text-primary fw-bold text-decoration-none ms-1">Log In</a>
+    <a
+      href="javascript:void(0)"
+      (click)="onSwitchToLogin()"
+      class="text-primary fw-bold text-decoration-none ms-1">
+      Log In
+    </a>
   </p>
 
 </form>

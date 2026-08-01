@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Output } from '@angular/core';
+import { ChangeDetectorRef, Component, EventEmitter, Output } from '@angular/core';
 import {
   FormBuilder,
   FormGroup,
@@ -28,7 +28,8 @@ export class Login {
   constructor(
     private fb: FormBuilder,
     private authService: Main,
-    private router: Router
+    private router: Router,
+    private cdr: ChangeDetectorRef
   ) {
     this.loginForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
@@ -57,20 +58,41 @@ export class Login {
 
         console.log('Login Success:', response);
 
-        // Save JWT Token (change "token" if your backend returns another field)
-        if (response.token) {
-          localStorage.setItem('token', response.token);
+        // Save JWT Token from login response (support both wrapped and unwrapped formats)
+        if (response?.data?.accessToken) {
+          localStorage.setItem('token', response.data.accessToken);
+        } else if (response?.accessToken) {
+          localStorage.setItem('token', response.accessToken);
+        }
+        // Store userId for easy access (fallback for profile loading)
+        const userId = response?.data?.user?.id || response?.user?.id;
+        if (userId) {
+          localStorage.setItem('userId', userId);
+        }
+        if (response?.data?.refreshToken) {
+          localStorage.setItem('refreshToken', response.data.refreshToken);
+        } else if (response?.refreshToken) {
+          localStorage.setItem('refreshToken', response.refreshToken);
         }
 
+        this.cdr.detectChanges();
         this.router.navigate(['/dashboard']);
       },
 
-      error: (err: { error: { message: string; }; }) => {
+      error: (err: any) => {
         this.isLoading = false;
-        console.error(err);
-
-        this.loginError =
-          err.error?.message || 'Invalid email or password.';
+        console.error('Login error:', err);
+        try {
+          if (err?.error?.errors && Array.isArray(err.error.errors) && err.error.errors.length > 0) {
+            this.loginError = err.error.errors.join('\n');
+          } else {
+            this.loginError = err?.error?.message || err?.message || 'Invalid email or password.';
+          }
+        } catch (e) {
+          console.error('Error parsing login response:', e);
+          this.loginError = 'Invalid email or password.';
+        }
+        this.cdr.detectChanges();
       },
     });
   }

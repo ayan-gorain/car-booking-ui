@@ -1,7 +1,7 @@
 <nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm px-3" style="height:56px;">
   <div class="container-fluid">
 
-    <!-- Logo (same as auth page) -->
+    <!-- Logo -->
     <a class="navbar-brand d-flex align-items-center gap-2 fw-bold" href="#">
       <div class="bg-white bg-opacity-25 rounded-circle d-flex align-items-center justify-content-center"
         style="width:34px;height:34px;">
@@ -13,14 +13,27 @@
     <!-- Right side -->
     <div class="ms-auto d-flex align-items-center gap-3">
 
-      <!-- User pill -->
-      <div class="d-flex align-items-center gap-2 bg-white bg-opacity-10 rounded-pill px-3 py-1">
-        <div class="bg-white rounded-circle d-flex align-items-center justify-content-center"
-          style="width:28px;height:28px;">
-          <i class="bi bi-person-fill text-primary small"></i>
-        </div>
-        <span class="text-white small fw-semibold">Admin</span>
-      </div>
+      <!-- User pill button — always clickable -->
+      <button
+        type="button"
+        class="nav-user-btn d-flex align-items-center gap-2"
+        (click)="openProfileModal()">
+
+        <span *ngIf="isProfileLoading" class="spinner-border spinner-border-sm text-light"></span>
+
+        <ng-container *ngIf="!isProfileLoading">
+          <div class="nav-avatar">
+            {{ (userProfile?.firstName || 'U').charAt(0).toUpperCase() }}
+          </div>
+          <span class="text-white small fw-semibold">
+            {{ userProfile?.firstName || 'User' }}
+          </span>
+          <span class="role-badge" *ngIf="userRole">
+            {{ userRole }}
+          </span>
+        </ng-container>
+
+      </button>
 
       <!-- Logout -->
       <button type="button" class="btn btn-outline-light btn-sm fw-semibold" (click)="logout()">
@@ -30,3 +43,9 @@
     </div>
   </div>
 </nav>
+
+<!-- Profile Modal (separate component) -->
+<app-profile-modal
+  *ngIf="isProfileModalOpen"
+  (closeModal)="closeProfileModal()">
+</app-profile-modal>

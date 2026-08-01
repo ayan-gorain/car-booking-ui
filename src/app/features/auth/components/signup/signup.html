@@ -4,6 +4,27 @@
   novalidate
 >
 
+  <!-- Role Tabs -->
+  <div class="d-flex bg-light rounded-pill p-1 mb-4 border">
+    <button
+      type="button"
+      class="btn flex-fill rounded-pill fw-semibold small py-2 d-flex align-items-center justify-content-center gap-2"
+      [class.btn-primary]="selectedRole === 'PASSENGER'"
+      [class.text-secondary]="selectedRole !== 'PASSENGER'"
+      (click)="selectRole('PASSENGER')">
+      <i class="bi bi-person-fill"></i> Customer
+    </button>
+
+    <button
+      type="button"
+      class="btn flex-fill rounded-pill fw-semibold small py-2 d-flex align-items-center justify-content-center gap-2"
+      [class.btn-primary]="selectedRole === 'DRIVER'"
+      [class.text-secondary]="selectedRole !== 'DRIVER'"
+      (click)="selectRole('DRIVER')">
+      <i class="bi bi-car-front-fill"></i> Driver
+    </button>
+  </div>
+
   <!-- First Name -->
   <div class="mb-3">
     <label class="form-label fw-semibold small">First Name</label>
@@ -208,7 +229,7 @@
       *ngIf="isLoading"
       class="spinner-border spinner-border-sm me-2">
     </span>
-    {{ isLoading ? 'Signing Up...' : 'Sign Up' }}
+    {{ isLoading ? 'Signing Up...' : (selectedRole === 'DRIVER' ? 'Sign Up as Driver' : 'Sign Up as Customer') }}
   </button>
 
   <!-- Switch to Login -->

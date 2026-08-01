@@ -38,32 +38,30 @@ export class ProfileModal implements OnInit {
       gender: ['', Validators.required],
       bio: [''],
     });
+
+    // Start disabled by default — belt and suspenders, so the form
+    // is never accidentally editable before/without a successful load.
+    this.profileForm.disable();
   }
 
   ngOnInit(): void {
     this.loadProfile();
   }
 
-  private getUserId(): string {
-    return localStorage.getItem('userId') || '';
-  }
-
   loadProfile(): void {
-    const userId = this.getUserId();
-
-    if (!userId) {
-      this.updateError = 'User not found. Please login again.';
-      return;
-    }
-
     this.isProfileLoading = true;
+    this.cdr.detectChanges();
 
-    this.authService.getUserById(userId).subscribe({
+    this.authService.getUserProfile().subscribe({
       next: (res: any) => {
         this.isProfileLoading = false;
 
-        if (res.success) {
-          this.userProfile = res.data;
+        // Handle both wrapped ({ success, data }) and unwrapped responses
+        const data = res?.data ?? res;
+        const success = res?.success !== undefined ? res.success : !!data;
+
+        if (success && data) {
+          this.userProfile = data;
 
           if (
             this.userProfile.roles &&
@@ -80,13 +78,13 @@ export class ProfileModal implements OnInit {
             gender: this.userProfile.gender || '',
             bio: this.userProfile.bio || '',
           });
-
-          // Start in read-only mode every time the modal opens
-          this.isEditMode = false;
-          this.profileForm.disable();
         } else {
-          this.updateError = res.message || 'Unable to load profile.';
+          this.updateError = res?.message || 'Unable to load profile.';
         }
+
+        // Always end up disabled after a load, success or not
+        this.isEditMode = false;
+        this.profileForm.disable();
 
         this.cdr.detectChanges();
       },
@@ -94,6 +92,7 @@ export class ProfileModal implements OnInit {
         this.isProfileLoading = false;
         this.updateError =
           err?.error?.message || err?.message || 'Unable to load profile. Please try again.';
+        this.profileForm.disable();
         this.cdr.detectChanges();
       },
     });
@@ -105,6 +104,7 @@ export class ProfileModal implements OnInit {
     this.updateError = null;
     this.updateSuccess = false;
     this.profileForm.enable();
+    this.cdr.detectChanges();
   }
 
   /** Revert to read-only without saving */
@@ -119,6 +119,7 @@ export class ProfileModal implements OnInit {
       bio: this.userProfile?.bio || '',
     });
     this.profileForm.disable();
+    this.cdr.detectChanges();
   }
 
   /**
@@ -145,16 +146,19 @@ export class ProfileModal implements OnInit {
       next: (res: any) => {
         this.isUpdating = false;
 
-        if (res.success) {
-          this.userProfile = res.data;
-          this.profileForm.patchValue(res.data);
+        const data = res?.data ?? res;
+        const success = res?.success !== undefined ? res.success : !!data;
+
+        if (success && data) {
+          this.userProfile = data;
+          this.profileForm.patchValue(data);
           this.updateSuccess = true;
           this.isEditMode = false;
           this.profileForm.disable();
 
           setTimeout(() => this.onClose(), 1500);
         } else {
-          this.updateError = res.message || 'Failed to update profile.';
+          this.updateError = res?.message || 'Failed to update profile.';
         }
 
         this.cdr.detectChanges();

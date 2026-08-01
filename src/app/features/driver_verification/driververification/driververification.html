@@ -1,0 +1,273 @@
+<div class="container-fluid py-5" style="max-width: 720px;">
+
+    <!-- Header -->
+    <div class="text-center mb-4">
+        <div class="d-inline-flex align-items-center justify-content-center rounded-circle bg-primary bg-opacity-10 mb-3"
+            style="width:56px;height:56px;">
+            <i class="bi bi-patch-check-fill text-primary fs-3"></i>
+        </div>
+        <h3 class="fw-bold mb-1">Driver Verification</h3>
+        <p class="text-secondary small mb-0">Upload your documents to start accepting rides</p>
+    </div>
+
+    <div class="card border-0 shadow-sm rounded-4">
+        <div class="card-body p-4">
+
+            <!-- Success -->
+            <div class="text-center py-5" *ngIf="verificationSuccess">
+                <i class="bi bi-check-circle-fill text-success" style="font-size:3rem;"></i>
+                <h5 class="fw-bold mt-3">{{ verificationSuccess }}</h5>
+            </div>
+
+            <form [formGroup]="verificationForm" (ngSubmit)="onSubmit()" *ngIf="!verificationSuccess" novalidate>
+
+                <!-- ── License Section ── -->
+                <p class="text-uppercase small fw-bold text-primary mb-3">
+                    <i class="bi bi-card-heading me-1"></i> Driving License
+                </p>
+
+                <div class="mb-3">
+                    <label class="form-label small fw-semibold">License Number</label>
+                    <input type="text" class="form-control" formControlName="drivingLicenseNumber"
+                        [class.is-invalid]="isFieldInvalid('drivingLicenseNumber')" placeholder="e.g. WB1234567890123">
+                    <small class="text-danger small mt-1 d-block" *ngIf="getFieldError('drivingLicenseNumber')">
+                        {{ getFieldError('drivingLicenseNumber') }}
+                    </small>
+                </div>
+
+                <div class="row g-3 mb-3">
+
+                    <!-- License Front -->
+                    <div class="col-md-6">
+                        <label class="form-label small fw-semibold">Front Side</label>
+                        <div class="border rounded-3 p-3 text-center"
+                            [class.border-danger]="isFieldInvalid('drivingLicenseFrontUrl')">
+                            <img *ngIf="previews.drivingLicenseFrontUrl" [src]="previews.drivingLicenseFrontUrl"
+                                class="img-fluid rounded mb-2" style="max-height:120px;">
+                            <input type="file" accept="image/*" class="form-control form-control-sm"
+                                (change)="onFileSelected($event, 'drivingLicenseFrontUrl')">
+                            <div class="mt-2" *ngIf="uploading.drivingLicenseFrontUrl">
+                                <span class="spinner-border spinner-border-sm text-primary"></span>
+                                <span class="small ms-2">Uploading...</span>
+                            </div>
+                            <div class="mt-2 text-success small"
+                                *ngIf="verificationForm.value.drivingLicenseFrontUrl && !uploading.drivingLicenseFrontUrl">
+                                <i class="bi bi-check-circle-fill"></i> Uploaded
+                            </div>
+                            <div class="mt-2 text-danger small" *ngIf="fileErrors.drivingLicenseFrontUrl">
+                                {{ fileErrors.drivingLicenseFrontUrl }}
+                            </div>
+                        </div>
+                        <small class="text-danger small mt-1 d-block" *ngIf="getFieldError('drivingLicenseFrontUrl')">
+                            {{ getFieldError('drivingLicenseFrontUrl') }}
+                        </small>
+                    </div>
+
+                    <!-- License Back -->
+                    <div class="col-md-6">
+                        <label class="form-label small fw-semibold">Back Side</label>
+                        <div class="border rounded-3 p-3 text-center"
+                            [class.border-danger]="isFieldInvalid('drivingLicenseBackUrl')">
+                            <img *ngIf="previews.drivingLicenseBackUrl" [src]="previews.drivingLicenseBackUrl"
+                                class="img-fluid rounded mb-2" style="max-height:120px;">
+                            <input type="file" accept="image/*" class="form-control form-control-sm"
+                                (change)="onFileSelected($event, 'drivingLicenseBackUrl')">
+                            <div class="mt-2" *ngIf="uploading.drivingLicenseBackUrl">
+                                <span class="spinner-border spinner-border-sm text-primary"></span>
+                                <span class="small ms-2">Uploading...</span>
+                            </div>
+                            <div class="mt-2 text-success small"
+                                *ngIf="verificationForm.value.drivingLicenseBackUrl && !uploading.drivingLicenseBackUrl">
+                                <i class="bi bi-check-circle-fill"></i> Uploaded
+                            </div>
+                            <div class="mt-2 text-danger small" *ngIf="fileErrors.drivingLicenseBackUrl">
+                                {{ fileErrors.drivingLicenseBackUrl }}
+                            </div>
+                        </div>
+                        <small class="text-danger small mt-1 d-block" *ngIf="getFieldError('drivingLicenseBackUrl')">
+                            {{ getFieldError('drivingLicenseBackUrl') }}
+                        </small>
+                    </div>
+
+                </div>
+
+                <hr class="my-4">
+
+                <!-- ── Government ID Section ── -->
+                <p class="text-uppercase small fw-bold text-primary mb-3">
+                    <i class="bi bi-person-vcard me-1"></i> Government ID
+                </p>
+
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                        <label class="form-label small fw-semibold">ID Type</label>
+                        <select class="form-select" formControlName="governmentIdType"
+                            [class.is-invalid]="isFieldInvalid('governmentIdType')">
+                            <option *ngFor="let type of governmentIdTypes" [value]="type">{{ type }}</option>
+                        </select>
+                        <small class="text-danger small mt-1 d-block" *ngIf="getFieldError('governmentIdType')">
+                            {{ getFieldError('governmentIdType') }}
+                        </small>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label small fw-semibold">ID Number</label>
+                        <input type="text" class="form-control" formControlName="governmentIdNumber"
+                            [class.is-invalid]="isFieldInvalid('governmentIdNumber')" placeholder="Enter ID number">
+                        <small class="text-danger small mt-1 d-block" *ngIf="getFieldError('governmentIdNumber')">
+                            {{ getFieldError('governmentIdNumber') }}
+                        </small>
+                    </div>
+                </div>
+
+                <div class="row g-3 mb-3">
+
+                    <!-- Gov ID Front -->
+                    <div class="col-md-6">
+                        <label class="form-label small fw-semibold">Front Side</label>
+                        <div class="border rounded-3 p-3 text-center"
+                            [class.border-danger]="isFieldInvalid('governmentIdFrontUrl')">
+                            <img *ngIf="previews.governmentIdFrontUrl" [src]="previews.governmentIdFrontUrl"
+                                class="img-fluid rounded mb-2" style="max-height:120px;">
+                            <input type="file" accept="image/*" class="form-control form-control-sm"
+                                (change)="onFileSelected($event, 'governmentIdFrontUrl')">
+                            <div class="mt-2" *ngIf="uploading.governmentIdFrontUrl">
+                                <span class="spinner-border spinner-border-sm text-primary"></span>
+                                <span class="small ms-2">Uploading...</span>
+                            </div>
+                            <div class="mt-2 text-success small"
+                                *ngIf="verificationForm.value.governmentIdFrontUrl && !uploading.governmentIdFrontUrl">
+                                <i class="bi bi-check-circle-fill"></i> Uploaded
+                            </div>
+                            <div class="mt-2 text-danger small" *ngIf="fileErrors.governmentIdFrontUrl">
+                                {{ fileErrors.governmentIdFrontUrl }}
+                            </div>
+                        </div>
+                        <small class="text-danger small mt-1 d-block" *ngIf="getFieldError('governmentIdFrontUrl')">
+                            {{ getFieldError('governmentIdFrontUrl') }}
+                        </small>
+                    </div>
+
+                    <!-- Gov ID Back -->
+                    <div class="col-md-6">
+                        <label class="form-label small fw-semibold">Back Side</label>
+                        <div class="border rounded-3 p-3 text-center"
+                            [class.border-danger]="isFieldInvalid('governmentIdBackUrl')">
+                            <img *ngIf="previews.governmentIdBackUrl" [src]="previews.governmentIdBackUrl"
+                                class="img-fluid rounded mb-2" style="max-height:120px;">
+                            <input type="file" accept="image/*" class="form-control form-control-sm"
+                                (change)="onFileSelected($event, 'governmentIdBackUrl')">
+                            <div class="mt-2" *ngIf="uploading.governmentIdBackUrl">
+                                <span class="spinner-border spinner-border-sm text-primary"></span>
+                                <span class="small ms-2">Uploading...</span>
+                            </div>
+                            <div class="mt-2 text-success small"
+                                *ngIf="verificationForm.value.governmentIdBackUrl && !uploading.governmentIdBackUrl">
+                                <i class="bi bi-check-circle-fill"></i> Uploaded
+                            </div>
+                            <div class="mt-2 text-danger small" *ngIf="fileErrors.governmentIdBackUrl">
+                                {{ fileErrors.governmentIdBackUrl }}
+                            </div>
+                        </div>
+                        <small class="text-danger small mt-1 d-block" *ngIf="getFieldError('governmentIdBackUrl')">
+                            {{ getFieldError('governmentIdBackUrl') }}
+                        </small>
+                    </div>
+
+                </div>
+
+                <hr class="my-4">
+
+                <!-- ── Selfie Section ── -->
+                <!-- ── Selfie Section ── -->
+                <p class="text-uppercase small fw-bold text-primary mb-3">
+                    <i class="bi bi-person-bounding-box me-1"></i> Selfie Verification
+                </p>
+
+                <div class="border rounded-3 p-4 text-center mb-2" [class.border-danger]="isFieldInvalid('selfieUrl')">
+
+                    <!-- Live camera view -->
+                    <div *ngIf="isCameraOpen" class="mb-3">
+                        <video #cameraVideo autoplay playsinline class="rounded-3 mb-3"
+                            style="width:100%; max-width:320px; transform: scaleX(-1);"></video>
+                        <canvas #cameraCanvas style="display:none;"></canvas>
+
+                        <div class="d-flex justify-content-center gap-2">
+                            <button type="button" class="btn btn-primary rounded-3 px-4" (click)="capturePhoto()">
+                                <i class="bi bi-camera-fill me-1"></i> Capture
+                            </button>
+                            <button type="button" class="btn btn-outline-secondary rounded-3 px-4"
+                                (click)="closeCamera()">
+                                Cancel
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Captured / uploaded preview -->
+                    <div *ngIf="!isCameraOpen && previews.selfieUrl">
+                        <img [src]="previews.selfieUrl" class="rounded-circle mb-3"
+                            style="width:140px;height:140px;object-fit:cover;">
+                        <div class="mt-1 mb-2">
+                            <button type="button" class="btn btn-outline-secondary btn-sm rounded-3"
+                                (click)="retakeSelfie()">
+                                <i class="bi bi-arrow-counterclockwise me-1"></i> Retake / Change
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Empty state: choose camera or upload -->
+                    <div *ngIf="!isCameraOpen && !previews.selfieUrl">
+                        <i class="bi bi-camera text-secondary" style="font-size:2.5rem;"></i>
+                        <p class="text-secondary small mt-2 mb-3">Take a live photo or upload one from your device</p>
+
+                        <div class="d-flex justify-content-center gap-2 flex-wrap">
+                            <button type="button" class="btn btn-primary rounded-3 px-4" (click)="openCamera()">
+                                <i class="bi bi-camera-fill me-1"></i> Use Camera
+                            </button>
+
+                            <label class="btn btn-outline-primary rounded-3 px-4 mb-0">
+                                <i class="bi bi-upload me-1"></i> Upload Photo
+                                <input type="file" accept="image/*" class="d-none"
+                                    (change)="onFileSelected($event, 'selfieUrl')">
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="mt-2 text-danger small" *ngIf="cameraError">{{ cameraError }}</div>
+
+                    <div class="mt-2" *ngIf="uploading.selfieUrl">
+                        <span class="spinner-border spinner-border-sm text-primary"></span>
+                        <span class="small ms-2">Processing...</span>
+                    </div>
+
+                    <div class="mt-2 text-success small"
+                        *ngIf="verificationForm.value.selfieUrl && !uploading.selfieUrl">
+                        <i class="bi bi-check-circle-fill"></i> Selfie captured
+                    </div>
+
+                    <div class="mt-2 text-danger small" *ngIf="fileErrors.selfieUrl">
+                        {{ fileErrors.selfieUrl }}
+                    </div>
+                </div>
+                <small class="text-danger small mt-1 d-block mb-3" *ngIf="getFieldError('selfieUrl')">
+                    {{ getFieldError('selfieUrl') }}
+                </small>
+
+                <!-- ── Summary / Submit Errors ── -->
+                <div class="alert alert-danger d-flex align-items-start gap-2 py-2 mt-3" *ngIf="verificationError">
+                    <i class="bi bi-exclamation-triangle-fill mt-1"></i>
+                    <span>{{ verificationError }}</span>
+                </div>
+
+                <!-- Submit -->
+                <button type="submit" class="btn btn-primary w-100 py-2 fw-semibold shadow-sm mt-2"
+                    [disabled]="isSubmitting || !isFormReadyToSubmit()">
+                    <span class="spinner-border spinner-border-sm me-2" *ngIf="isSubmitting"></span>
+                    {{ isSubmitting ? 'Submitting...' : 'Submit for Verification' }}
+                </button>
+
+            </form>
+
+        </div>
+    </div>
+</div>

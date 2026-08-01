@@ -1,6 +1,6 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable, of } from 'rxjs';
+import { Observable } from 'rxjs';
 
 export interface RegisterRequest {
   firstName: string;
@@ -64,7 +64,6 @@ export class Main {
     return this.http.post(`${this.authUrl}/reset-password`, data);
   }
 
-  // New: fetch logged-in user profile
   getUserProfile(): Observable<any> {
     const token = localStorage.getItem('token');
     const headers = new HttpHeaders({
@@ -73,7 +72,6 @@ export class Main {
     return this.http.get(`${this.baseUrl}/api/v1/users/me`, { headers });
   }
 
-  // New: update logged-in user profile
   updateUserProfile(data: any): Observable<any> {
     const token = localStorage.getItem('token');
     const headers = new HttpHeaders({
@@ -81,5 +79,29 @@ export class Main {
     });
     return this.http.put(`${this.baseUrl}/api/v1/users/me`, data, { headers });
   }
+
+  // New: upload a single file (license/ID/selfie image), returns { url }
+  uploadFile(file: File): Observable<any> {
+    const token = localStorage.getItem('token');
+    const headers = new HttpHeaders({
+      Authorization: token ? `Bearer ${token}` : ''
+    });
+
+    const formData = new FormData();
+    formData.append('file', file);
+
+    // TODO: confirm exact upload endpoint path via Swagger
+    return this.http.post(`${this.baseUrl}/api/v1/files/upload`, formData, { headers });
+  }
+
+  // New: submit driver verification documents
+  submitDriverVerification(data: any): Observable<any> {
+    const token = localStorage.getItem('token');
+    const headers = new HttpHeaders({
+      Authorization: token ? `Bearer ${token}` : ''
+    });
+
+    // TODO: confirm exact submit endpoint path via Swagger
+    return this.http.post(`${this.baseUrl}/api/v1/drivers/verification`, data, { headers });
+  }
 }
-  

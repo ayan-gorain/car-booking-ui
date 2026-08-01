@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
+import { Router } from '@angular/router';
 import { Login } from './components/login/login';
 import { Signup } from './components/signup/signup';
 
@@ -14,7 +15,13 @@ import { Signup } from './components/signup/signup';
 export class Auth {
   activeTab: 'login' | 'signup' = 'login';
 
+  constructor(private router: Router) {}
+
   setTab(tab: 'login' | 'signup') {
     this.activeTab = tab;
+  }
+
+  goToAdminLogin() {
+    this.router.navigate(['/admin-login']);
   }
 }

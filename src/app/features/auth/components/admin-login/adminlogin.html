@@ -1,0 +1,183 @@
+<div class="container-fluid min-vh-100 d-flex justify-content-center align-items-center bg-light p-3">
+  
+  <!-- Back to User Login Link -->
+  <div class="position-absolute top-0 start-0 p-3">
+    <button
+      class="btn btn-sm btn-outline-secondary rounded-pill"
+      (click)="goBackToAuth()"
+      type="button">
+      <i class="bi bi-arrow-left me-1"></i> Back to User Login
+    </button>
+  </div>
+  
+  <div class="card border-0 shadow-lg rounded-4 p-4" style="width: 100%; max-width: 440px;">
+    
+    <!-- Header Logo & Title -->
+    <div class="text-center mb-4">
+      <div class="bg-primary text-white rounded-circle d-inline-flex justify-content-center align-items-center mb-3 shadow-sm" style="width: 60px; height: 60px;">
+        <i class="bi bi-shield-check fs-3"></i>
+      </div>
+      <h3 class="fw-bold text-dark mb-1">Admin Login</h3>
+      <p class="text-secondary small mb-0">Secure admin access portal</p>
+    </div>
+
+    <!-- ========== STEP 1: Email Selection ========== -->
+    <div *ngIf="!otpSent && !loginSuccess">
+
+      <!-- Email List Header -->
+      <div class="mb-3">
+        <p class="small fw-semibold text-muted mb-2">
+          <i class="bi bi-envelope-check me-1"></i> Select Admin Email
+        </p>
+      </div>
+
+      <!-- Admin Emails List with Checkboxes -->
+      <div class="list-group mb-4 border rounded-3">
+        <div 
+          *ngFor="let email of adminEmails; let i = index"
+          class="list-group-item p-3 d-flex align-items-center cursor-pointer"
+          [class.active]="selectedEmail === email"
+          (click)="selectEmail(email)"
+          style="cursor: pointer;">
+          
+          <input 
+            type="radio" 
+            [id]="'email-' + i"
+            class="form-check-input me-3"
+            [value]="email"
+            [(ngModel)]="selectedEmail"
+            (change)="selectEmail(email)">
+          
+          <label 
+            [for]="'email-' + i"
+            class="mb-0 flex-grow-1"
+            style="cursor: pointer;">
+            <div class="small fw-semibold text-dark">{{ email }}</div>
+            <div class="small text-secondary">Admin Account</div>
+          </label>
+
+          <i *ngIf="selectedEmail === email" class="bi bi-check-circle-fill text-primary ms-2"></i>
+        </div>
+      </div>
+
+      <!-- Error Alert for Email Selection -->
+      <div class="alert alert-danger d-flex align-items-start gap-2 py-2 mb-3" *ngIf="emailSelectionError">
+        <i class="bi bi-exclamation-triangle-fill mt-1 flex-shrink-0"></i>
+        <span class="small">{{ emailSelectionError }}</span>
+      </div>
+
+      <!-- Send OTP Button -->
+      <button 
+        type="button"
+        class="btn btn-primary w-100 py-2 fw-semibold shadow-sm"
+        (click)="sendOTP()"
+        [disabled]="isSendingOTP || !selectedEmail">
+        <span class="spinner-border spinner-border-sm me-2" *ngIf="isSendingOTP"></span>
+        {{ isSendingOTP ? 'Sending OTP...' : 'Send OTP' }}
+      </button>
+
+      <!-- Info Message -->
+      <p class="small text-secondary text-center mt-3 mb-0">
+        <i class="bi bi-info-circle me-1"></i>
+        Select an email to receive OTP for verification
+      </p>
+    </div>
+
+    <!-- ========== STEP 2: OTP Verification ========== -->
+    <form [formGroup]="otpForm" (ngSubmit)="verifyOTP()" *ngIf="otpSent && !loginSuccess" novalidate>
+
+      <!-- Selected Email Display & Fake OTP Hint -->
+      <div class="alert alert-primary d-flex align-items-center justify-content-between gap-2 py-3 mb-4 border-0 bg-primary bg-opacity-10 rounded-3">
+        <div class="d-flex align-items-center gap-2">
+          <i class="bi bi-shield-check text-primary fs-5 flex-shrink-0"></i>
+          <div class="small">
+            <div class="fw-semibold text-dark">OTP sent to <span class="text-primary">{{ selectedEmail }}</span></div>
+            <div class="text-secondary mt-1">
+              Fake OTP: <span class="badge bg-primary text-white font-monospace px-2 py-1 me-1">{{ demoOTP }}</span>
+            </div>
+          </div>
+        </div>
+        <button
+          type="button"
+          class="btn btn-sm btn-outline-primary fw-semibold rounded-pill"
+          (click)="fillDemoOTP()">
+          Auto-fill
+        </button>
+      </div>
+
+      <!-- OTP Input -->
+      <div class="mb-3">
+        <label class="form-label small fw-semibold">Enter OTP</label>
+        <div class="input-group">
+          <span class="input-group-text bg-white text-secondary">
+            <i class="bi bi-shield-lock"></i>
+          </span>
+          <input 
+            type="text" 
+            class="form-control form-control-lg text-center fw-bold tracking-wider"
+            formControlName="otp"
+            [class.is-invalid]="isFieldInvalid('otp')"
+            placeholder="000000"
+            maxlength="6"
+            (input)="onOTPInput($event)">
+        </div>
+        <div class="invalid-feedback d-block small mt-1" *ngIf="getFieldError('otp')">
+          {{ getFieldError('otp') }}
+        </div>
+      </div>
+
+      <!-- OTP Timer -->
+      <div class="text-center mb-3">
+        <p class="small text-muted mb-1">OTP expires in</p>
+        <div class="display-6 fw-bold text-primary" [class.text-warning]="otpTimeRemaining <= 30">
+          {{ formatTime(otpTimeRemaining) }}
+        </div>
+      </div>
+
+      <!-- Resend OTP -->
+      <div class="text-center mb-4">
+        <p class="small text-secondary mb-2">Didn't receive OTP?</p>
+        <button
+          type="button"
+          class="btn btn-link btn-sm p-0 text-primary fw-semibold"
+          (click)="resendOTP()"
+          [disabled]="canResendOTP === false || isResendingOTP">
+          <span class="spinner-border spinner-border-sm me-2" *ngIf="isResendingOTP"></span>
+          {{ isResendingOTP ? 'Resending...' : canResendOTP ? 'Resend OTP' : 'Resend in ' + resendTimer + 's' }}
+        </button>
+      </div>
+
+      <!-- Error Alert for OTP -->
+      <div class="alert alert-danger d-flex align-items-start gap-2 py-2 mb-3" *ngIf="otpError">
+        <i class="bi bi-exclamation-triangle-fill mt-1 flex-shrink-0"></i>
+        <span class="small">{{ otpError }}</span>
+      </div>
+
+      <!-- Verify OTP Button -->
+      <button 
+        type="submit"
+        class="btn btn-primary w-100 py-2 fw-semibold shadow-sm"
+        [disabled]="isVerifyingOTP || otpForm.invalid">
+        <span class="spinner-border spinner-border-sm me-2" *ngIf="isVerifyingOTP"></span>
+        {{ isVerifyingOTP ? 'Verifying...' : 'Verify & Login' }}
+      </button>
+
+      <!-- Back to Email Selection -->
+      <button
+        type="button"
+        class="btn btn-outline-secondary w-100 py-2 fw-semibold mt-2"
+        (click)="backToEmailSelection()">
+        <i class="bi bi-arrow-left me-1"></i> Change Email
+      </button>
+
+    </form>
+
+    <!-- ========== STEP 3: Success ========== -->
+    <div class="text-center py-5" *ngIf="loginSuccess">
+      <i class="bi bi-check-circle-fill text-success" style="font-size: 3rem;"></i>
+      <h5 class="fw-bold mt-3 text-dark">{{ loginSuccess }}</h5>
+      <p class="text-secondary small mt-2">Redirecting to admin dashboard...</p>
+    </div>
+
+  </div>
+</div>

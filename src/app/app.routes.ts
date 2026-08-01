@@ -5,12 +5,14 @@ import { ResetPassword } from './features/auth/components/reset-password/reset-p
 import { Auth } from './features/auth/auth';
 import { Dashboard } from './features/dashboard/dashboard';
 import { Carbooking } from './features/carbooking/carbooking';
+import { Driververification } from './features/driver_verification/driververification/driververification';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'auth', pathMatch: 'full' },
   { path: 'auth', component: Auth },
   { path: 'dashboard', component: Dashboard },
   { path: 'carbooking', component: Carbooking },
+  { path: 'driver-verification', component: Driververification },
 
   { path: 'forgot-password', component: ForgotPassword },
   { path: 'reset-password', component: ResetPassword },

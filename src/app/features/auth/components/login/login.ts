@@ -64,11 +64,21 @@ export class Login {
         } else if (response?.accessToken) {
           localStorage.setItem('token', response.accessToken);
         }
+
         // Store userId for easy access (fallback for profile loading)
-        const userId = response?.data?.user?.id || response?.user?.id;
-        if (userId) {
-          localStorage.setItem('userId', userId);
+        const user = response?.data?.user || response?.user;
+        console.log('Extracted user object:', user); 
+
+        if (user?.id) {
+          localStorage.setItem('userId', user.id);
         }
+
+        // Cache the full user object so the navbar (and anywhere else)
+        // can render instantly without waiting on a getUserById call
+        if (user) {
+          localStorage.setItem('user', JSON.stringify(user));
+        }
+
         if (response?.data?.refreshToken) {
           localStorage.setItem('refreshToken', response.data.refreshToken);
         } else if (response?.refreshToken) {

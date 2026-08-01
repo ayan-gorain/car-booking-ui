@@ -25,6 +25,7 @@ export class Navbar implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    this.loadCachedUser();
     this.fetchUserProfile();
   }
 
@@ -36,59 +37,72 @@ export class Navbar implements OnInit {
   }
 
   /**
-   * Load profile for navbar pill (name, avatar, role)
+   * Instantly populate the pill from the user object saved at login,
+   * so there's no spinner flash on every page load.
    */
-  fetchUserProfile(): void {
-    const userId = this.getUserId();
+  private loadCachedUser(): void {
+    const cached = localStorage.getItem('user');
 
-    if (!userId) {
-      console.error('No userId found.');
+    if (!cached) {
       return;
     }
 
-    this.isProfileLoading = true;
-    this.cdr.detectChanges();
+    try {
+      const user = JSON.parse(cached);
+      this.userProfile = user;
 
-    this.authService.getUserById(userId).subscribe({
-      next: (res: any) => {
-        this.isProfileLoading = false;
+      if (user.roles && Array.isArray(user.roles) && user.roles.length) {
+        this.userRole = user.roles[0];
+      }
 
-        if (res.success) {
-          this.userProfile = res.data;
-
-          if (
-            this.userProfile.roles &&
-            Array.isArray(this.userProfile.roles) &&
-            this.userProfile.roles.length
-          ) {
-            this.userRole = this.userProfile.roles[0];
-          }
-        }
-
-        this.cdr.detectChanges();
-      },
-      error: (err) => {
-        this.isProfileLoading = false;
-        console.error('Failed to fetch profile', err);
-        this.cdr.detectChanges();
-      },
-    });
+      this.cdr.detectChanges();
+    } catch (err) {
+      console.error('Failed to parse cached user', err);
+    }
   }
 
   /**
-   * Open Profile Modal — all profile fetching/edit/update logic
-   * lives inside ProfileModal itself.
+   * Silently refresh from the API in the background so any profile
+   * edits (bio, DOB, gender, picture) made elsewhere stay in sync.
+   * Only shows the spinner if we had no cached user to display.
    */
+  fetchUserProfile(): void {
+  if (!this.userProfile) {
+    this.isProfileLoading = true;
+    this.cdr.detectChanges();
+  }
+
+  this.authService.getUserProfile().subscribe({
+    next: (res: any) => {
+      this.isProfileLoading = false;
+
+      if (res.success) {
+        this.userProfile = res.data;
+        localStorage.setItem('user', JSON.stringify(res.data));
+
+        if (
+          this.userProfile.roles &&
+          Array.isArray(this.userProfile.roles) &&
+          this.userProfile.roles.length
+        ) {
+          this.userRole = this.userProfile.roles[0];
+        }
+      }
+
+      this.cdr.detectChanges();
+    },
+    error: (err) => {
+      this.isProfileLoading = false;
+      console.error('Failed to fetch profile', err);
+      this.cdr.detectChanges();
+    },
+  });
+}
   openProfileModal(): void {
     this.isProfileModalOpen = true;
     this.cdr.detectChanges();
   }
 
-  /**
-   * Close Profile Modal — refresh navbar pill data (name/avatar/role
-   * might have changed) and force change detection so the UI
-   * reflects the latest state immediately.
-   */
   closeProfileModal(): void {
     this.isProfileModalOpen = false;
     this.cdr.detectChanges();

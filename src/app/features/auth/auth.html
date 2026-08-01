@@ -1,10 +1,20 @@
 <div class="container-fluid min-vh-100 d-flex justify-content-center align-items-center bg-light p-3">
   
-  <div class="card shadow-lg border-0 rounded-4 p-4" style="width: 100%; max-width: 440px;">
+  <!-- Admin Login Link (Top Right Corner) -->
+  <div class="position-absolute top-0 end-0 p-3">
+    <button
+      class="btn btn-sm btn-outline-secondary rounded-pill"
+      (click)="goToAdminLogin()"
+      type="button">
+      <i class="bi bi-shield-lock me-1"></i> Admin Login
+    </button>
+  </div>
+  
+  <div class="card border-0 shadow-lg rounded-4 p-4" style="width: 100%; max-width: 440px;">
     
     <!-- Header Logo & Title -->
     <div class="text-center mb-4">
-      <div class="bg-primary bg-gradient text-white rounded-circle d-inline-flex justify-content-center align-items-center mb-3 shadow-sm" style="width: 60px; height: 60px;">
+      <div class="bg-primary text-white rounded-circle d-inline-flex justify-content-center align-items-center mb-3 shadow-sm" style="width: 60px; height: 60px;">
         <i class="bi bi-car-front-fill fs-3"></i>
       </div>
       <h3 class="fw-bold text-dark mb-1">

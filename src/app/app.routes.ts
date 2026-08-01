@@ -6,6 +6,7 @@ import { Auth } from './features/auth/auth';
 import { Dashboard } from './features/dashboard/dashboard';
 import { Carbooking } from './features/carbooking/carbooking';
 import { Driververification } from './features/driver_verification/driververification/driververification';
+import { Adminlogin } from './features/auth/components/admin-login/adminlogin';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'auth', pathMatch: 'full' },
@@ -17,6 +18,12 @@ export const routes: Routes = [
   { path: 'forgot-password', component: ForgotPassword },
   { path: 'reset-password', component: ResetPassword },
   { path: 'reset-password/:token', component: ResetPassword },
+
+
+  {
+    path: 'admin-login',
+    component: Adminlogin,
+  },
 
   { path: '**', redirectTo: 'auth' },
 ];

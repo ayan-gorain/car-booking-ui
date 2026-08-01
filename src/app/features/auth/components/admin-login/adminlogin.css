@@ -1,0 +1,112 @@
+/* Admin Login OTP Component - Minimal CSS (Bootstrap handles all styling) */
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.card {
+  animation: fadeIn 0.4s ease;
+}
+
+.alert {
+  animation: fadeIn 0.3s ease;
+}
+
+.list-group-item {
+  animation: fadeIn 0.3s ease;
+  border: 1px solid #dee2e6 !important;
+}
+
+.list-group-item.active {
+  background-color: #f0f8ff !important;
+  border-color: #0d6efd !important;
+}
+
+/* OTP Input Styling */
+.form-control-lg {
+  letter-spacing: 0.5rem;
+  font-size: 1.5rem;
+}
+
+.form-control-lg::placeholder {
+  letter-spacing: 0.5rem;
+}
+
+/* Timer Display */
+.display-6 {
+  transition: color 0.3s ease;
+}
+
+/* Cursor Pointer for Clickable Items */
+.cursor-pointer {
+  cursor: pointer;
+  user-select: none;
+}
+
+/* Button Transitions */
+.btn {
+  transition: all 0.3s ease;
+}
+
+.btn-link {
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.btn-link:hover:not(:disabled) {
+  text-decoration: underline;
+}
+
+/* Disabled State */
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Success Animation */
+@keyframes slideInSuccess {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.bi-check-circle-fill {
+  animation: slideInSuccess 0.5s ease;
+}
+
+/* Info Box Styling */
+.bg-info.bg-opacity-10 {
+  animation: fadeIn 0.3s ease;
+}
+
+/* Responsive Design */
+@media (max-width: 576px) {
+  .card {
+    border-radius: 1rem !important;
+  }
+
+  .position-absolute {
+    position: static !important;
+    margin-bottom: 1rem;
+  }
+
+  .form-control-lg {
+    letter-spacing: 0.3rem;
+  }
+
+  .list-group-item {
+    padding: 0.75rem !important;
+  }
+}

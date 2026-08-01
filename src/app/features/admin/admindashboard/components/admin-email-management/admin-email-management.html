@@ -1,0 +1,175 @@
+<div class="card border-0 shadow-sm rounded-4 overflow-hidden mb-4">
+  <!-- Card Header -->
+  <div class="card-header bg-white border-bottom p-4 d-flex align-items-center justify-content-between flex-wrap gap-3">
+    <div>
+      <h5 class="fw-bold text-dark mb-1 d-flex align-items-center gap-2">
+        <i class="bi bi-shield-lock-fill text-primary"></i> Admin Email Management
+      </h5>
+      <p class="text-secondary small mb-0">Add, view, and manage authorized admin accounts for system access</p>
+    </div>
+    <span class="badge bg-primary bg-opacity-10 text-primary fw-semibold px-3 py-2 rounded-pill">
+      <i class="bi bi-people-fill me-1"></i> {{ adminEmails.length }} Active Admins
+    </span>
+  </div>
+
+  <div class="card-body p-4">
+
+    <!-- Global Success Alert -->
+    <div class="alert alert-success alert-dismissible fade show d-flex align-items-center gap-2 mb-4" *ngIf="successMessage">
+      <i class="bi bi-check-circle-fill fs-5 flex-shrink-0"></i>
+      <div>{{ successMessage }}</div>
+      <button type="button" class="btn-close" (click)="successMessage = null"></button>
+    </div>
+
+    <!-- Global Error Alert -->
+    <div class="alert alert-danger alert-dismissible fade show d-flex align-items-center gap-2 mb-4" *ngIf="errorMessage">
+      <i class="bi bi-exclamation-triangle-fill fs-5 flex-shrink-0"></i>
+      <div>{{ errorMessage }}</div>
+      <button type="button" class="btn-close" (click)="errorMessage = null"></button>
+    </div>
+
+    <!-- Form & Filter Row -->
+    <div class="row g-3 mb-4">
+
+      <!-- Add New Admin Email Form -->
+      <div class="col-lg-7">
+        <form [formGroup]="addEmailForm" (ngSubmit)="onAddEmail()" novalidate>
+          <label class="form-label fw-semibold small text-dark">Add New Admin Email</label>
+          <div class="input-group">
+            <span class="input-group-text bg-white border-end-0 text-secondary">
+              <i class="bi bi-envelope-plus"></i>
+            </span>
+            <input
+              type="email"
+              class="form-control border-start-0 border-end-0"
+              formControlName="email"
+              placeholder="e.g. admin@carbooking.com"
+              [class.is-invalid]="addEmailForm.get('email')?.touched && addEmailForm.get('email')?.invalid" />
+            <button
+              type="submit"
+              class="btn btn-primary fw-semibold px-4 shadow-sm"
+              [disabled]="isSubmitting">
+              <span *ngIf="isSubmitting" class="spinner-border spinner-border-sm me-1"></span>
+              <i *ngIf="!isSubmitting" class="bi bi-plus-lg me-1"></i> Add Admin
+            </button>
+          </div>
+          <small
+            class="text-danger small mt-1 d-block"
+            *ngIf="addEmailForm.get('email')?.touched && addEmailForm.get('email')?.hasError('required')">
+            Email address is required.
+          </small>
+          <small
+            class="text-danger small mt-1 d-block"
+            *ngIf="addEmailForm.get('email')?.touched && addEmailForm.get('email')?.hasError('email')">
+            Please enter a valid email address.
+          </small>
+        </form>
+      </div>
+
+      <!-- Search Filter -->
+      <div class="col-lg-5">
+        <label class="form-label fw-semibold small text-dark">Search Admin Emails</label>
+        <div class="input-group">
+          <span class="input-group-text bg-white border-end-0 text-secondary">
+            <i class="bi bi-search"></i>
+          </span>
+          <input
+            type="text"
+            class="form-control border-start-0"
+            [(ngModel)]="searchTerm"
+            placeholder="Search by email..." />
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Admin Emails Table -->
+    <div class="table-responsive border rounded-3 overflow-hidden">
+      <table class="table table-hover align-middle mb-0">
+        <thead class="bg-light border-bottom">
+          <tr>
+            <th scope="col" class="py-3 px-4 text-secondary small fw-bold text-uppercase">#</th>
+            <th scope="col" class="py-3 px-4 text-secondary small fw-bold text-uppercase">Email Address</th>
+            <th scope="col" class="py-3 px-4 text-secondary small fw-bold text-uppercase">Role</th>
+            <th scope="col" class="py-3 px-4 text-secondary small fw-bold text-uppercase">Status</th>
+            <th scope="col" class="py-3 px-4 text-secondary small fw-bold text-uppercase text-end">Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let email of filteredEmails; let i = index">
+            <td class="px-4 fw-semibold text-muted small">{{ i + 1 }}</td>
+            <td class="px-4">
+              <div class="d-flex align-items-center gap-3">
+                <div class="bg-primary bg-opacity-10 text-primary rounded-circle d-flex align-items-center justify-content-center fw-bold" style="width: 38px; height: 38px; font-size: 0.85rem;">
+                  {{ email.charAt(0).toUpperCase() }}
+                </div>
+                <div>
+                  <div class="fw-semibold text-dark">{{ email }}</div>
+                  <div class="text-secondary small">System Administrator</div>
+                </div>
+              </div>
+            </td>
+            <td class="px-4">
+              <span class="badge bg-secondary bg-opacity-10 text-secondary border fw-semibold px-2 py-1 rounded">
+                Super Admin
+              </span>
+            </td>
+            <td class="px-4">
+              <span class="badge bg-success bg-opacity-10 text-success fw-semibold px-2.5 py-1.5 rounded-pill d-inline-flex align-items-center gap-1">
+                <i class="bi bi-circle-fill" style="font-size: 0.5rem;"></i> Active
+              </span>
+            </td>
+            <td class="px-4 text-end">
+              <button
+                type="button"
+                class="btn btn-sm btn-outline-danger rounded-pill px-3"
+                (click)="confirmDelete(email)"
+                [disabled]="adminEmails.length <= 1">
+                <i class="bi bi-trash me-1"></i> Remove
+              </button>
+            </td>
+          </tr>
+
+          <!-- Empty State -->
+          <tr *ngIf="filteredEmails.length === 0">
+            <td colspan="5" class="text-center py-5">
+              <div class="text-muted">
+                <i class="bi bi-envelope-x fs-1 opacity-50 mb-2 d-block"></i>
+                <p class="fw-semibold mb-1">No admin emails found</p>
+                <p class="small text-secondary mb-0">Try clearing your search query or add a new admin email above.</p>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+</div>
+
+<!-- Inline Confirm Delete Backdrop / Modal Banner -->
+<div *ngIf="emailToDelete" class="modal-backdrop-custom d-flex align-items-center justify-content-center p-3">
+  <div class="card border-0 shadow-lg rounded-4 p-4 text-center bg-white" style="max-width: 420px; width: 100%;">
+    <div class="bg-danger bg-opacity-10 text-danger rounded-circle d-inline-flex align-items-center justify-content-center mb-3 mx-auto" style="width: 56px; height: 56px;">
+      <i class="bi bi-exclamation-triangle-fill fs-3"></i>
+    </div>
+    <h5 class="fw-bold text-dark mb-2">Remove Admin Email?</h5>
+    <p class="text-secondary small mb-4">
+      Are you sure you want to remove <strong class="text-dark">{{ emailToDelete }}</strong> from admin access? They will no longer be able to log in to the admin portal.
+    </p>
+    <div class="d-flex gap-2">
+      <button
+        type="button"
+        class="btn btn-light border flex-fill fw-semibold py-2"
+        (click)="cancelDelete()">
+        Cancel
+      </button>
+      <button
+        type="button"
+        class="btn btn-danger flex-fill fw-semibold py-2 shadow-sm"
+        (click)="executeDelete()">
+        Yes, Remove
+      </button>
+    </div>
+  </div>
+</div>

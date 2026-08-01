@@ -1,0 +1,63 @@
+<div
+  class="sidebar-nav d-flex flex-column"
+  [style.width]="isExpanded ? '240px' : '64px'"
+  style="height: calc(100vh - 56px); overflow: hidden; transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);">
+
+  <!-- Logo / Toggle Row -->
+  <div class="sidebar-logo-area d-flex align-items-center py-3 px-2"
+    [class.justify-content-between]="isExpanded"
+    [class.justify-content-center]="!isExpanded">
+    <div *ngIf="isExpanded" class="d-flex align-items-center gap-2 ps-1">
+      <div class="rounded-2 d-flex align-items-center justify-content-center"
+        style="width:28px;height:28px;background:linear-gradient(135deg,#6366f1,#8b5cf6);">
+        <i class="bi bi-shield-check text-white" style="font-size:0.8rem;"></i>
+      </div>
+      <span class="fw-bold text-white" style="font-size:0.85rem;letter-spacing:0.02em;">Admin Portal</span>
+    </div>
+    <button class="sidebar-toggle-btn btn btn-sm" (click)="toggleSlidebar()" title="Toggle sidebar">
+      <i class="bi fs-6"
+        [class.bi-layout-sidebar-inset-reverse]="isExpanded"
+        [class.bi-layout-sidebar-inset]="!isExpanded"></i>
+    </button>
+  </div>
+
+  <!-- Navigation Items -->
+  <div class="flex-grow-1 overflow-auto py-2 px-2" style="scrollbar-width: none;">
+
+    <div *ngIf="isExpanded" class="sidebar-section-label">Navigation</div>
+
+    <ul class="nav flex-column gap-1 mt-1">
+      <li *ngFor="let menu of menus">
+        <button
+          class="sidebar-menu-item btn"
+          [class.active-item]="activeMenu === menu.name"
+          (click)="selectMenu(menu.name)"
+          [title]="menu.name">
+          <span class="menu-icon">
+            <i class="bi {{ menu.icon }}"></i>
+          </span>
+          <span *ngIf="isExpanded" class="menu-label">{{ menu.name }}</span>
+        </button>
+      </li>
+    </ul>
+
+  </div>
+
+  <!-- Footer -->
+  <div class="sidebar-footer">
+    <div *ngIf="isExpanded" class="sidebar-footer-badge d-flex align-items-center gap-2">
+      <div class="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0"
+        style="width:28px;height:28px;background:rgba(99,102,241,0.2);">
+        <i class="bi bi-circle-fill text-success" style="font-size:0.45rem;"></i>
+      </div>
+      <div>
+        <div class="text-white fw-semibold" style="font-size:0.75rem;">System Online</div>
+        <div style="font-size:0.65rem;color:#6b7280;">All services running</div>
+      </div>
+    </div>
+    <div *ngIf="!isExpanded" class="text-center py-1">
+      <i class="bi bi-circle-fill text-success" style="font-size:0.45rem;"></i>
+    </div>
+  </div>
+
+</div>

@@ -1,0 +1,167 @@
+<div class="min-vh-100 d-flex flex-column" style="overflow:hidden;">
+
+  <!-- ===== TOP NAVBAR ===== -->
+  <header class="admin-navbar navbar sticky-top d-flex align-items-center px-4" style="height:56px;z-index:1020;">
+    <div class="d-flex align-items-center gap-2 me-auto">
+      <div class="rounded-2 d-flex align-items-center justify-content-center flex-shrink-0"
+        style="width:32px;height:32px;background:linear-gradient(135deg,#6366f1,#8b5cf6);">
+        <i class="bi bi-shield-check text-white" style="font-size:0.95rem;"></i>
+      </div>
+      <span class="navbar-brand-text text-white">CarBooking</span>
+      <span class="admin-badge-portal text-white text-uppercase">Admin Portal</span>
+    </div>
+
+    <div class="d-flex align-items-center gap-2">
+      <div class="navbar-user-pill d-none d-md-flex align-items-center gap-2 text-white">
+        <i class="bi bi-person-circle text-white-50 fs-6"></i>
+        <span class="text-white-50 small">Logged in as</span>
+        <strong class="text-white small">Super Admin</strong>
+      </div>
+      <button class="logout-btn btn btn-sm d-flex align-items-center gap-1.5" (click)="logout()">
+        <i class="bi bi-box-arrow-right"></i> Logout
+      </button>
+    </div>
+  </header>
+
+  <!-- ===== BODY: Sidebar + Content ===== -->
+  <div class="d-flex flex-grow-1" style="height:calc(100vh - 56px);overflow:hidden;">
+
+    <!-- SIDEBAR -->
+    <app-admin-slidebar [activeMenu]="activeMenu" (menuSelected)="setMenu($event)"></app-admin-slidebar>
+
+    <!-- MAIN CONTENT -->
+    <main class="admin-main flex-grow-1 d-flex flex-column overflow-hidden">
+
+      <!-- Page Header Bar -->
+      <div class="page-header-section d-flex align-items-center justify-content-between flex-wrap gap-2">
+        <div>
+          <div class="page-title d-flex align-items-center gap-2">
+            <i class="bi {{ getMenuIcon() }}" style="color:#6366f1;font-size:1.15rem;"></i>
+            {{ activeMenu }}
+          </div>
+          <nav aria-label="breadcrumb" class="mt-0.5">
+            <ol class="breadcrumb mb-0">
+              <li class="breadcrumb-item"><span class="text-muted">Admin Portal</span></li>
+              <li class="breadcrumb-item active" aria-current="page">{{ activeMenu }}</li>
+            </ol>
+          </nav>
+        </div>
+        <span class="admin-stat-pill">
+          <i class="bi bi-shield-check me-1"></i>Active Admins: {{ adminCount }}
+        </span>
+      </div>
+
+      <!-- Scrollable content -->
+      <div class="admin-content-area flex-grow-1 overflow-auto">
+
+        <!-- Driver Verification -->
+        <div *ngIf="activeMenu === 'Driver Verification'">
+          <app-driver-verification-approval></app-driver-verification-approval>
+        </div>
+
+        <!-- Admin Email Management -->
+        <div *ngIf="activeMenu === 'Admin Email Management'">
+          <app-admin-email-management></app-admin-email-management>
+        </div>
+
+        <!-- Dashboard Overview -->
+        <div *ngIf="activeMenu === 'Dashboard Overview'">
+          <div class="row g-3 mb-4">
+            <div class="col-sm-6 col-xl-3">
+              <div class="card border-0 rounded-4 p-3 bg-white shadow-sm">
+                <div class="d-flex align-items-center gap-3">
+                  <div class="rounded-3 d-flex align-items-center justify-content-center flex-shrink-0"
+                    style="width:44px;height:44px;background:rgba(99,102,241,0.1);">
+                    <i class="bi bi-shield-lock-fill" style="color:#6366f1;font-size:1.1rem;"></i>
+                  </div>
+                  <div>
+                    <div class="fs-4 fw-bold text-dark">{{ adminCount }}</div>
+                    <div class="text-secondary small">Total Admins</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-sm-6 col-xl-3">
+              <div class="card border-0 rounded-4 p-3 bg-white shadow-sm">
+                <div class="d-flex align-items-center gap-3">
+                  <div class="rounded-3 d-flex align-items-center justify-content-center flex-shrink-0"
+                    style="width:44px;height:44px;background:rgba(16,185,129,0.1);">
+                    <i class="bi bi-check-circle-fill" style="color:#10b981;font-size:1.1rem;"></i>
+                  </div>
+                  <div>
+                    <div class="fs-4 fw-bold text-dark">Active</div>
+                    <div class="text-secondary small">Security Status</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-sm-6 col-xl-3">
+              <div class="card border-0 rounded-4 p-3 bg-white shadow-sm">
+                <div class="d-flex align-items-center gap-3">
+                  <div class="rounded-3 d-flex align-items-center justify-content-center flex-shrink-0"
+                    style="width:44px;height:44px;background:rgba(245,158,11,0.1);">
+                    <i class="bi bi-person-badge-fill" style="color:#f59e0b;font-size:1.1rem;"></i>
+                  </div>
+                  <div>
+                    <div class="fs-4 fw-bold text-dark">14</div>
+                    <div class="text-secondary small">Drivers Pending</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-sm-6 col-xl-3">
+              <div class="card border-0 rounded-4 p-3 bg-white shadow-sm">
+                <div class="d-flex align-items-center gap-3">
+                  <div class="rounded-3 d-flex align-items-center justify-content-center flex-shrink-0"
+                    style="width:44px;height:44px;background:rgba(59,130,246,0.1);">
+                    <i class="bi bi-car-front-fill" style="color:#3b82f6;font-size:1.1rem;"></i>
+                  </div>
+                  <div>
+                    <div class="fs-4 fw-bold text-dark">128</div>
+                    <div class="text-secondary small">Total Rides</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card border-0 shadow-sm rounded-4 p-4 bg-white">
+            <h6 class="fw-bold text-dark mb-1">Quick Actions</h6>
+            <p class="text-secondary small mb-3">Jump to common admin tasks.</p>
+            <div class="d-flex gap-2 flex-wrap">
+              <button class="btn btn-sm fw-semibold rounded-pill px-4 py-2"
+                style="background:rgba(99,102,241,0.1);color:#6366f1;border:1px solid rgba(99,102,241,0.2);"
+                (click)="setMenu('Admin Email Management')">
+                <i class="bi bi-shield-lock me-1"></i> Manage Admin Emails
+              </button>
+              <button class="btn btn-sm fw-semibold rounded-pill px-4 py-2"
+                style="background:rgba(245,158,11,0.1);color:#d97706;border:1px solid rgba(245,158,11,0.2);"
+                (click)="setMenu('Driver Verification')">
+                <i class="bi bi-person-badge me-1"></i> Review Driver Requests
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Car Bookings Placeholder -->
+        <div *ngIf="activeMenu === 'Car Bookings'">
+          <div class="card border-0 shadow-sm rounded-4 p-5 text-center bg-white">
+            <i class="bi bi-car-front fs-1 mb-3" style="color:#6366f1;"></i>
+            <h5 class="fw-bold text-dark">Car Bookings Management</h5>
+            <p class="text-secondary small mb-0">View all customer ride requests and active bookings.</p>
+          </div>
+        </div>
+
+        <!-- System Settings Placeholder -->
+        <div *ngIf="activeMenu === 'System Settings'">
+          <div class="card border-0 shadow-sm rounded-4 p-5 text-center bg-white">
+            <i class="bi bi-gear fs-1 mb-3" style="color:#6366f1;"></i>
+            <h5 class="fw-bold text-dark">System Configuration</h5>
+            <p class="text-secondary small mb-0">Configure system parameters, security policies, and notifications.</p>
+          </div>
+        </div>
+
+      </div>
+    </main>
+  </div>
+</div>

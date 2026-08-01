@@ -8,6 +8,9 @@ import {
 } from '@angular/forms';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import { Subscription } from 'rxjs';
+import { AdminEmailService } from '../../../admin/services/admin-email.service';
+
 
 @Component({
   selector: 'app-adminlogin',
@@ -17,11 +20,7 @@ import { FormsModule } from '@angular/forms';
   styleUrl: "./adminlogin.css",
 })
 export class Adminlogin implements OnInit, OnDestroy {
-  // Admin emails (can be fetched from backend)
-  adminEmails: string[] = [
-    'goraiayan108@gmail.com',
-    'ayan.2025.gorain@gmail.com',
-  ];
+  adminEmails: string[] = [];
 
   otpForm: FormGroup;
 
@@ -49,22 +48,33 @@ export class Adminlogin implements OnInit, OnDestroy {
   // Demo OTP for testing
   demoOTP = '123456';
   private generatedOTP = '123456';
+  private sub?: Subscription;
 
   constructor(
     private fb: FormBuilder,
     private router: Router,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private adminEmailService: AdminEmailService
   ) {
     this.otpForm = this.fb.group({
       otp: ['', [Validators.required, Validators.minLength(6), Validators.maxLength(6), Validators.pattern(/^\d+$/)]],
     });
   }
 
-  ngOnInit(): void {}
+  ngOnInit(): void {
+    this.sub = this.adminEmailService.adminEmails$.subscribe((emails) => {
+      this.adminEmails = emails;
+      if (emails.length > 0 && !this.selectedEmail) {
+        this.selectedEmail = emails[0];
+      }
+      this.cdr.detectChanges();
+    });
+  }
 
   ngOnDestroy(): void {
     this.stopOtpTimer();
     this.stopResendTimer();
+    this.sub?.unsubscribe();
   }
 
   // ========== EMAIL SELECTION ==========

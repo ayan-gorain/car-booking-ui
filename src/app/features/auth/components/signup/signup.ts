@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Output } from '@angular/core';
+import { ChangeDetectorRef, Component, EventEmitter, Output } from '@angular/core';
 import {
   FormBuilder,
   FormGroup,
@@ -24,13 +24,17 @@ export class Signup {
 
   showSignupPassword = false;
   showConfirmPassword = false;
-
   signupError: string | null = null;
+  signupSuccess: string | null = null;
+  isLoading = false;
+
+ 
 
   constructor(
     private fb: FormBuilder,
     private authService: Main,
-    private router: Router
+    private router: Router,
+    private cdr: ChangeDetectorRef
   ) {
 
     this.signupForm = this.fb.group({
@@ -50,41 +54,62 @@ export class Signup {
 
   }
 
-  onSignup() {
+ onSignup() {
 
-    if (this.signupForm.invalid) {
-      this.signupForm.markAllAsTouched();
-      return;
-    }
-
-    if (
-      this.signupForm.value.password !==
-      this.signupForm.value.confirmPassword
-    ) {
-      this.signupError = 'Passwords do not match';
-      return;
-    }
-
-    this.signupError = null;
-
-    this.authService.register(this.signupForm.value).subscribe({
-
-      next: (response: any) => {
-        console.log(response);
-
-        alert('Registration Successful');
-
-        this.onSwitchToLogin();
-      },
-
-      error: (err: { error: { message: string; }; }) => {
-        console.log(err);
-        this.signupError =
-          err.error?.message || 'Registration Failed';
-      }
-
-    });
+  if (this.signupForm.invalid) {
+    this.signupForm.markAllAsTouched();
+    return;
   }
+
+  if (
+    this.signupForm.value.password !==
+    this.signupForm.value.confirmPassword
+  ) {
+    this.signupError = 'Passwords do not match';
+    return;
+  }
+
+  this.signupError = null;
+  this.signupSuccess = null;
+  this.isLoading = true;
+
+  this.authService.register(this.signupForm.value).subscribe({
+
+    next: (response: any) => {
+      this.isLoading = false;
+      console.log(response);
+
+      this.signupSuccess =
+        response.message ||
+        'Registration successful. Please verify your email. Redirecting to login...';
+
+      this.signupForm.reset();
+      this.cdr.detectChanges();
+
+      // Redirect after 2.5 seconds
+      setTimeout(() => {
+        this.onSwitchToLogin();
+      }, 2500);
+    },
+
+    error: (err: any) => {
+      this.isLoading = false;
+      console.error('Signup error:', err);
+      try {
+        if (err?.error?.errors && Array.isArray(err.error.errors) && err.error.errors.length > 0) {
+          this.signupError = err.error.errors.join('\n');
+        } else {
+          this.signupError = err?.error?.message || err?.message || 'Registration Failed';
+        }
+      } catch (e) {
+        console.error('Error parsing signup response:', e);
+        this.signupError = 'Registration Failed';
+      }
+      this.cdr.detectChanges();
+    }
+
+  });
+}
 
   onSwitchToLogin() {
     this.switchToLogin.emit();

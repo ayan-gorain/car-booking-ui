@@ -174,12 +174,28 @@
       *ngIf="signupForm.get('confirmPassword')?.touched && signupForm.get('confirmPassword')?.hasError('required')">
       Confirm Password is required.
     </small>
+
+    <small
+      class="text-danger small mt-1 d-block"
+      *ngIf="signupForm.get('confirmPassword')?.touched &&
+             signupForm.value.password !== signupForm.value.confirmPassword">
+      Passwords do not match.
+    </small>
   </div>
 
-  <!-- API Error -->
+  <!-- Success Message -->
+  <div
+    class="alert alert-success"
+    *ngIf="signupSuccess">
+    <i class="bi bi-check-circle-fill me-2"></i>
+    {{ signupSuccess }}
+  </div>
+
+  <!-- Error Message -->
   <div
     class="alert alert-danger"
     *ngIf="signupError">
+    <i class="bi bi-exclamation-circle-fill me-2"></i>
     {{ signupError }}
   </div>
 
@@ -187,8 +203,12 @@
   <button
     type="submit"
     class="btn btn-primary w-100 py-2 fw-semibold shadow-sm"
-    [disabled]="signupForm.invalid">
-    Sign Up
+    [disabled]="signupForm.invalid || signupSuccess || isLoading">
+    <span
+      *ngIf="isLoading"
+      class="spinner-border spinner-border-sm me-2">
+    </span>
+    {{ isLoading ? 'Signing Up...' : 'Sign Up' }}
   </button>
 
   <!-- Switch to Login -->

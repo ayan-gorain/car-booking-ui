@@ -1,7 +1,357 @@
+/* ===================================================
+   Navbar
+=================================================== */
 .navbar-brand {
-    font-size: 1.4rem;
+  font-size: 1.3rem;
+  letter-spacing: 0.01em;
 }
 
-.dropdown-item {
-    cursor: pointer;
+/* User pill button in navbar */
+.nav-user-btn {
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 999px;
+  padding: 4px 14px 4px 5px;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.15s;
+  color: #fff;
+}
+.nav-user-btn:hover {
+  background: rgba(255, 255, 255, 0.22);
+  transform: translateY(-1px);
+}
+
+/* Avatar circle in navbar */
+.nav-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: #fff;
+  color: #0d6efd;
+  font-size: 12px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.role-badge {
+  background: rgba(255,255,255,0.2);
+  border: 1px solid rgba(255,255,255,0.35);
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 600;
+  padding: 1px 8px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #fff;
+}
+
+/* ===================================================
+   Profile Modal Overlay
+=================================================== */
+.profile-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(10, 15, 40, 0.55);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1200;
+  animation: overlayFadeIn 0.25s ease;
+}
+
+@keyframes overlayFadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* ===================================================
+   Profile Modal Card
+=================================================== */
+.profile-modal {
+  width: 100%;
+  max-width: 600px;
+  background: #fff;
+  border-radius: 20px;
+  box-shadow: 0 32px 80px rgba(0, 0, 0, 0.22), 0 8px 24px rgba(13, 110, 253, 0.1);
+  overflow: hidden;
+  animation: modalSlideIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  margin: 16px;
+}
+
+@keyframes modalSlideIn {
+  from { opacity: 0; transform: translateY(28px) scale(0.97); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* ===================================================
+   Modal Header — Gradient
+=================================================== */
+.profile-modal-header {
+  background: linear-gradient(135deg, #1a56db 0%, #0ea5e9 100%);
+  padding: 36px 28px 28px;
+  text-align: center;
+  position: relative;
+}
+
+.profile-close-btn {
+  position: absolute;
+  top: 14px;
+  right: 16px;
+  background: rgba(255,255,255,0.15);
+  border: none;
+  color: #fff;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.profile-close-btn:hover {
+  background: rgba(255,255,255,0.3);
+}
+
+.profile-modal-avatar {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.2);
+  border: 3px solid rgba(255,255,255,0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 14px;
+  overflow: hidden;
+}
+.profile-avatar-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.profile-avatar-initials {
+  font-size: 28px;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: -1px;
+}
+
+.profile-modal-name {
+  color: #fff;
+  font-weight: 700;
+  font-size: 1.3rem;
+  margin: 0 0 6px;
+}
+
+.profile-modal-role {
+  display: inline-flex;
+  align-items: center;
+  background: rgba(255,255,255,0.2);
+  border: 1px solid rgba(255,255,255,0.4);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  border-radius: 999px;
+  padding: 3px 12px;
+}
+
+/* ===================================================
+   Modal Body
+=================================================== */
+.profile-modal-body {
+  padding: 28px 28px 24px;
+  max-height: 65vh;
+  overflow-y: auto;
+}
+
+/* Custom scrollbar */
+.profile-modal-body::-webkit-scrollbar { width: 5px; }
+.profile-modal-body::-webkit-scrollbar-track { background: #f1f3f5; border-radius: 10px; }
+.profile-modal-body::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+
+/* Section labels */
+.profile-section-label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #64748b;
+  margin-bottom: 12px;
+  margin-top: 4px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+/* ===================================================
+   Custom Form Fields
+=================================================== */
+.profile-field {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.profile-field label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #475569;
+  letter-spacing: 0.02em;
+}
+
+.profile-field input,
+.profile-field select,
+.profile-field textarea {
+  border: 1.5px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-size: 14px;
+  color: #1e293b;
+  background: #f8fafc;
+  transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+  outline: none;
+  width: 100%;
+}
+.profile-field input:focus,
+.profile-field select:focus,
+.profile-field textarea:focus {
+  border-color: #1a56db;
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(26, 86, 219, 0.1);
+}
+.profile-field textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+/* Read-only fields */
+.profile-field--readonly input {
+  background: #f1f5f9;
+  color: #64748b;
+  cursor: not-allowed;
+  border-color: #e2e8f0;
+}
+
+/* ===================================================
+   Alerts
+=================================================== */
+.profile-alert {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  border-radius: 10px;
+  padding: 12px 16px;
+  font-size: 13.5px;
+  font-weight: 500;
+  margin-bottom: 16px;
+  animation: alertSlide 0.25s ease;
+}
+@keyframes alertSlide {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.profile-alert i {
+  margin-top: 1px;
+  flex-shrink: 0;
+  font-size: 15px;
+}
+
+.profile-alert--error {
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #b91c1c;
+}
+.profile-alert--error i { color: #dc2626; }
+
+.profile-alert--success {
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  color: #15803d;
+}
+.profile-alert--success i { color: #16a34a; }
+
+/* ===================================================
+   Loading State
+=================================================== */
+.profile-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 0;
+  gap: 16px;
+  color: #64748b;
+  font-size: 14px;
+}
+
+.profile-loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid #e2e8f0;
+  border-top-color: #1a56db;
+  border-radius: 50%;
+  animation: spin 0.75s linear infinite;
+}
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ===================================================
+   Action Buttons
+=================================================== */
+.profile-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding-top: 4px;
+}
+
+.profile-btn-cancel {
+  background: #f1f5f9;
+  color: #475569;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 10px 22px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s;
+}
+.profile-btn-cancel:hover {
+  background: #e2e8f0;
+}
+
+.profile-btn-save {
+  background: linear-gradient(135deg, #1a56db, #0ea5e9);
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  padding: 10px 26px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: opacity 0.2s, transform 0.15s, box-shadow 0.2s;
+  box-shadow: 0 4px 14px rgba(26, 86, 219, 0.3);
+}
+.profile-btn-save:hover:not(:disabled) {
+  opacity: 0.92;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(26, 86, 219, 0.4);
+}
+.profile-btn-save:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none;
 }

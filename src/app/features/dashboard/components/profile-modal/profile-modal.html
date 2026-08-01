@@ -1,0 +1,135 @@
+<!-- Backdrop -->
+<div class="modal-backdrop fade show"></div>
+
+<!-- Modal -->
+<div class="modal fade show d-block" tabindex="-1" role="dialog" style="z-index:1055;" (click)="onClose()">
+  <div class="modal-dialog modal-dialog-centered modal-lg" role="document" (click)="$event.stopPropagation()">
+    <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+
+      <!-- Header -->
+      <div class="p-4 pb-4 text-white text-center position-relative"
+           style="background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%);">
+
+        <button type="button" class="btn-close btn-close-white position-absolute top-0 end-0 m-3"
+                (click)="onClose()" aria-label="Close"></button>
+
+        <div class="rounded-circle bg-white bg-opacity-25 border border-3 border-white border-opacity-50 mx-auto mb-3 d-flex align-items-center justify-content-center overflow-hidden"
+             style="width:84px;height:84px;">
+          <img *ngIf="userProfile?.profilePictureUrl"
+               [src]="userProfile.profilePictureUrl"
+               alt="Profile"
+               class="w-100 h-100"
+               style="object-fit:cover;" />
+          <span *ngIf="!userProfile?.profilePictureUrl" class="fs-4 fw-bold text-white">
+            {{ (userProfile?.firstName || 'U').charAt(0).toUpperCase() }}{{ (userProfile?.lastName || '').charAt(0).toUpperCase() }}
+          </span>
+        </div>
+
+        <h4 class="fw-bold mb-1">
+          {{ userProfile ? (userProfile.firstName + ' ' + userProfile.lastName) : 'My Profile' }}
+        </h4>
+        <span class="badge rounded-pill bg-white text-primary fw-semibold px-3 py-2" *ngIf="userRole">
+          <i class="bi bi-shield-check me-1"></i>{{ userRole }}
+        </span>
+      </div>
+
+      <!-- Body -->
+      <div class="modal-body p-4">
+
+        <!-- Loading -->
+        <div *ngIf="isProfileLoading" class="text-center py-5">
+          <div class="spinner-border text-primary mb-3" role="status"></div>
+          <p class="text-muted mb-0">Loading your profile…</p>
+        </div>
+
+        <!-- Form -->
+        <form *ngIf="!isProfileLoading" [formGroup]="profileForm" (ngSubmit)="onSubmit()">
+
+          <p class="text-uppercase small fw-bold text-primary mb-3 d-flex align-items-center gap-2">
+            <i class="bi bi-person-fill"></i> Personal Information
+          </p>
+
+          <div class="row g-3 mb-3">
+            <div class="col-md-6">
+              <label class="form-label small fw-semibold text-secondary">First Name</label>
+              <input type="text" class="form-control rounded-3" formControlName="firstName" placeholder="First Name" />
+            </div>
+            <div class="col-md-6">
+              <label class="form-label small fw-semibold text-secondary">Last Name</label>
+              <input type="text" class="form-control rounded-3" formControlName="lastName" placeholder="Last Name" />
+            </div>
+          </div>
+
+          <div class="row g-3 mb-3">
+            <div class="col-md-6">
+              <label class="form-label small fw-semibold text-secondary">Date of Birth</label>
+              <input type="date" class="form-control rounded-3" formControlName="dateOfBirth" />
+            </div>
+            <div class="col-md-6">
+              <label class="form-label small fw-semibold text-secondary">Gender</label>
+              <select class="form-select rounded-3" formControlName="gender">
+                <option value="" disabled>Select Gender</option>
+                <option value="MALE">Male</option>
+                <option value="FEMALE">Female</option>
+                <option value="OTHER">Other</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="mb-4">
+            <label class="form-label small fw-semibold text-secondary">Bio</label>
+            <textarea class="form-control rounded-3" formControlName="bio" rows="3" placeholder="Tell us about yourself…"></textarea>
+          </div>
+
+          <hr class="my-4">
+
+          <p class="text-uppercase small fw-bold text-primary mb-3 d-flex align-items-center gap-2">
+            <i class="bi bi-envelope-fill"></i> Contact
+            <span class="badge bg-light text-secondary fw-normal">Read-only</span>
+          </p>
+
+          <div class="row g-3 mb-4">
+            <div class="col-md-6">
+              <label class="form-label small fw-semibold text-secondary">
+                <i class="bi bi-envelope-fill me-1 text-primary"></i>Email
+              </label>
+              <input type="email" class="form-control rounded-3 bg-light" [value]="userProfile?.email || '—'" disabled />
+            </div>
+            <div class="col-md-6">
+              <label class="form-label small fw-semibold text-secondary">
+                <i class="bi bi-telephone-fill me-1 text-primary"></i>Phone
+              </label>
+              <input type="text" class="form-control rounded-3 bg-light" [value]="userProfile?.phoneNumber || '—'" disabled />
+            </div>
+          </div>
+
+          <!-- Alerts -->
+          <div class="alert alert-danger d-flex align-items-center gap-2 py-2 rounded-3" *ngIf="updateError">
+            <i class="bi bi-exclamation-triangle-fill"></i>
+            <span>{{ updateError }}</span>
+          </div>
+
+          <div class="alert alert-success d-flex align-items-center gap-2 py-2 rounded-3" *ngIf="updateSuccess">
+            <i class="bi bi-check-circle-fill"></i>
+            <span>Profile updated successfully!</span>
+          </div>
+
+          <!-- Actions -->
+          <div class="d-flex justify-content-end gap-2 mt-4">
+            <button type="button" class="btn btn-outline-secondary rounded-3 px-4" *ngIf="isEditMode" (click)="cancelEdit()">
+              Cancel
+            </button>
+            <button type="submit" class="btn btn-primary rounded-3 px-4 fw-semibold"
+                    [disabled]="isUpdating || (isEditMode && profileForm.invalid)">
+              <span class="spinner-border spinner-border-sm me-2" *ngIf="isUpdating"></span>
+              <i class="bi" [ngClass]="isEditMode ? 'bi-check-lg' : 'bi-pencil-fill'" *ngIf="!isUpdating"></i>
+              {{ isUpdating ? 'Saving…' : (isEditMode ? 'Update Changes' : 'Edit Profile') }}
+            </button>
+          </div>
+
+        </form>
+      </div>
+
+    </div>
+  </div>
+</div>

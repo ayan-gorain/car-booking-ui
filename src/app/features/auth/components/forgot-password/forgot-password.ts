@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { ChangeDetectorRef, Component } from '@angular/core';
 import {
   FormBuilder,
   FormGroup,
@@ -7,6 +7,7 @@ import {
   Validators,
 } from '@angular/forms';
 import { Router } from '@angular/router';
+import { Main } from '../../../service/main';
 
 @Component({
   selector: 'app-forgot-password',
@@ -18,10 +19,15 @@ import { Router } from '@angular/router';
 export class ForgotPassword {
 
   forgotPasswordForm: FormGroup;
+  successMessage: string | null = null;
+  errorMessage: string | null = null;
+  isLoading = false;
 
   constructor(
     private fb: FormBuilder,
-    private router: Router
+    private router: Router,
+    private authService: Main,
+    private cdr: ChangeDetectorRef
   ) {
 
     this.forgotPasswordForm = this.fb.group({
@@ -34,11 +40,30 @@ export class ForgotPassword {
 
     if (this.forgotPasswordForm.valid) {
 
-      console.log(this.forgotPasswordForm.value);
+      this.isLoading = true;
+      this.successMessage = null;
+      this.errorMessage = null;
 
-      // API Call Here
-
-      alert('Password reset link has been sent.');
+      this.authService.forgotPassword(this.forgotPasswordForm.value.email).subscribe({
+        next: (response: any) => {
+          this.isLoading = false;
+          this.successMessage = response.message || 'Password reset link has been sent. Redirecting to reset password...';
+          const token = response.token || '';
+          this.cdr.detectChanges();
+          setTimeout(() => {
+            this.router.navigate(['/reset-password'], { queryParams: { token: token } });
+          }, 2000);
+        },
+        error: (err: any) => {
+          this.isLoading = false;
+          if (err.error?.errors && Array.isArray(err.error.errors) && err.error.errors.length > 0) {
+            this.errorMessage = err.error.errors.join('\n');
+          } else {
+            this.errorMessage = err.error?.message || 'Failed to send password reset link.';
+          }
+          this.cdr.detectChanges();
+        }
+      });
 
     } else {
 
@@ -49,7 +74,7 @@ export class ForgotPassword {
   }
 
   backToLogin() {
-    this.router.navigate(['/login']);
+    this.router.navigate(['/auth']);
   }
 
 }

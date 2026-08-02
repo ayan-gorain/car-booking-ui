@@ -28,6 +28,14 @@ export interface VehicleBooking {
   createdAt: string;
 }
 
+interface WizardStep {
+  id: number;
+  label: string;
+  icon: string;
+  // control names that must be valid before moving past this step
+  fields: string[];
+}
+
 @Component({
   selector: 'app-drivercreatebooking',
   standalone: true,
@@ -50,6 +58,16 @@ export class Drivercreatebooking {
 
   bookings: VehicleBooking[] = [];
   bookingToDelete: VehicleBooking | null = null;
+
+  // ── Wizard state ──
+  steps: WizardStep[] = [
+    { id: 1, label: 'Identity', icon: 'bi-car-front', fields: ['registrationNumber', 'manufacturer', 'model', 'color', 'manufacturingYear'] },
+    { id: 2, label: 'Classification', icon: 'bi-tag-fill', fields: ['vehicleType', 'fuelType', 'transmission'] },
+    { id: 3, label: 'Capacity', icon: 'bi-person-fill', fields: ['seatCapacity', 'luggageCapacity'] },
+    { id: 4, label: 'Review', icon: 'bi-clipboard-check', fields: [] },
+  ];
+  currentStep = 1;
+  furthestStepReached = 1;
 
   constructor(private fb: FormBuilder, private cdr: ChangeDetectorRef) {
     this.bookingForm = this.fb.group({
@@ -75,7 +93,62 @@ export class Drivercreatebooking {
     return this.bookingForm.controls;
   }
 
-  /** Bootstrap icon class for a given vehicle body type. */
+  // ── Wizard navigation ──
+
+  /** Is the given step's set of fields currently valid? */
+  isStepValid(stepId: number): boolean {
+    const step = this.steps.find((s) => s.id === stepId);
+    if (!step) return true;
+    return step.fields.every((name) => this.bookingForm.get(name)?.valid);
+  }
+
+  /** Mark all controls belonging to a step as touched (to surface errors). */
+  private touchStep(stepId: number): void {
+    const step = this.steps.find((s) => s.id === stepId);
+    if (!step) return;
+    step.fields.forEach((name) => this.bookingForm.get(name)?.markAsTouched());
+  }
+
+  nextStep(): void {
+    if (!this.isStepValid(this.currentStep)) {
+      this.touchStep(this.currentStep);
+      this.cdr.detectChanges();
+      return;
+    }
+    if (this.currentStep < this.steps.length) {
+      this.currentStep++;
+      this.furthestStepReached = Math.max(this.furthestStepReached, this.currentStep);
+      this.cdr.detectChanges();
+    }
+  }
+
+  prevStep(): void {
+    if (this.currentStep > 1) {
+      this.currentStep--;
+      this.cdr.detectChanges();
+    }
+  }
+
+  /** Allow jumping back to any already-completed step via the progress bar. */
+  goToStep(stepId: number): void {
+    if (stepId <= this.furthestStepReached) {
+      this.currentStep = stepId;
+      this.cdr.detectChanges();
+    }
+  }
+
+  /** Edit a specific step directly from the Review screen. */
+  editStep(stepId: number): void {
+    this.goToStep(stepId);
+  }
+
+  private resetWizard(): void {
+    this.currentStep = 1;
+    this.furthestStepReached = 1;
+  }
+
+  // ── Display helpers ──
+
   vehicleIcon(type: VehicleType | ''): string {
     switch (type) {
       case 'SUV': return 'bi-truck-front';
@@ -88,7 +161,6 @@ export class Drivercreatebooking {
     }
   }
 
-  /** Bootstrap icon class for a given fuel type. */
   fuelIcon(type: FuelType | string): string {
     switch (type) {
       case 'PETROL': return 'bi-fuel-pump-fill';
@@ -100,7 +172,6 @@ export class Drivercreatebooking {
     }
   }
 
-  /** Accent color used to tint a vehicle's card/badge based on its type. */
   vehicleAccent(type: VehicleType | string): string {
     switch (type) {
       case 'SUV': return '#0ea5e9';
@@ -113,9 +184,14 @@ export class Drivercreatebooking {
     }
   }
 
+  // ── Submit (fires only from the Review step) ──
+
   onSubmit(): void {
-    if (this.bookingForm.invalid) {
-      this.bookingForm.markAllAsTouched();
+    // Guard: ensure every step is actually valid before final submit.
+    const invalidStep = this.steps.find((s) => s.fields.length && !this.isStepValid(s.id));
+    if (invalidStep) {
+      this.touchStep(invalidStep.id);
+      this.currentStep = invalidStep.id;
       this.cdr.detectChanges();
       return;
     }
@@ -127,7 +203,6 @@ export class Drivercreatebooking {
 
     const value = this.bookingForm.value;
 
-    // Duplicate registration number check
     const isDuplicate = this.bookings.some(
       (b) => b.registrationNumber.toUpperCase() === value.registrationNumber.toUpperCase()
     );
@@ -162,6 +237,7 @@ export class Drivercreatebooking {
       this.bookings.unshift(newBooking);
       this.successMessage = `Vehicle "${newBooking.manufacturer} ${newBooking.model}" added successfully!`;
       this.bookingForm.reset({ luggageCapacity: 0, airConditioned: true });
+      this.resetWizard();
       this.cdr.detectChanges();
 
       setTimeout(() => { this.successMessage = null; this.cdr.detectChanges(); }, 4000);

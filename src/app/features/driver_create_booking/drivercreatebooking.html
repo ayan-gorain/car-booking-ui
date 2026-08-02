@@ -22,164 +22,253 @@
 
   <div class="card border-0 shadow-sm rounded-4 mb-5">
     <div class="card-body p-4">
+
+      <!-- ── Progress Bar ── -->
+      <div class="d-flex align-items-center mb-4">
+        <ng-container *ngFor="let step of steps; let last = last">
+          <div class="d-flex flex-column align-items-center" style="cursor:pointer;"
+            (click)="goToStep(step.id)">
+            <div class="d-inline-flex align-items-center justify-content-center rounded-circle fw-semibold"
+              style="width:36px;height:36px;font-size:0.85rem;"
+              [class.bg-primary]="currentStep === step.id"
+              [class.text-white]="currentStep === step.id"
+              [class.bg-success]="currentStep > step.id"
+              [class.text-white]="currentStep >= step.id"
+              [class.bg-light]="currentStep < step.id"
+              [class.text-secondary]="currentStep < step.id">
+              <i class="bi bi-check-lg" *ngIf="currentStep > step.id"></i>
+              <span *ngIf="currentStep <= step.id">{{ step.id }}</span>
+            </div>
+            <span class="small mt-1 fw-semibold"
+              [class.text-primary]="currentStep === step.id"
+              [class.text-secondary]="currentStep !== step.id">{{ step.label }}</span>
+          </div>
+          <div class="flex-grow-1 mx-2" style="height:2px;"
+            [class.bg-success]="currentStep > step.id"
+            [class.bg-light]="currentStep <= step.id"
+            *ngIf="!last"></div>
+        </ng-container>
+      </div>
+
       <form [formGroup]="bookingForm" (ngSubmit)="onSubmit()" novalidate>
 
-        <!-- ── Vehicle Identity Section ── -->
-        <p class="text-uppercase small fw-bold text-primary mb-3">
-          <i class="bi bi-car-front me-1"></i> Vehicle Identity
-        </p>
+        <!-- ══════════ STEP 1 — Vehicle Identity ══════════ -->
+        <div *ngIf="currentStep === 1">
+          <p class="text-uppercase small fw-bold text-primary mb-3">
+            <i class="bi bi-car-front me-1"></i> Vehicle Identity
+          </p>
 
-        <div class="mb-3">
-          <label class="form-label small fw-semibold">Registration Number</label>
-          <input type="text" class="form-control text-uppercase" formControlName="registrationNumber"
-            placeholder="e.g. TS09AB1234"
-            [class.is-invalid]="f['registrationNumber'].invalid && f['registrationNumber'].touched">
-          <small class="text-danger small mt-1 d-block"
-            *ngIf="f['registrationNumber'].touched && f['registrationNumber'].errors?.['required']">
-            Registration number is required.
-          </small>
-          <small class="text-danger small mt-1 d-block"
-            *ngIf="f['registrationNumber'].touched && (f['registrationNumber'].errors?.['minlength'] || f['registrationNumber'].errors?.['maxlength'])">
-            Must be between 4 and 15 characters.
-          </small>
-        </div>
-
-        <div class="row g-3 mb-3">
-          <div class="col-md-6">
-            <label class="form-label small fw-semibold">Manufacturer</label>
-            <input type="text" class="form-control" formControlName="manufacturer" placeholder="e.g. Maruti Suzuki"
-              [class.is-invalid]="f['manufacturer'].invalid && f['manufacturer'].touched">
-            <small class="text-danger small mt-1 d-block" *ngIf="f['manufacturer'].touched && f['manufacturer'].invalid">
-              Manufacturer is required.
+          <div class="mb-3">
+            <label class="form-label small fw-semibold">Registration Number</label>
+            <input type="text" class="form-control text-uppercase" formControlName="registrationNumber"
+              placeholder="e.g. TS09AB1234"
+              [class.is-invalid]="f['registrationNumber'].invalid && f['registrationNumber'].touched">
+            <small class="text-danger small mt-1 d-block"
+              *ngIf="f['registrationNumber'].touched && f['registrationNumber'].errors?.['required']">
+              Registration number is required.
+            </small>
+            <small class="text-danger small mt-1 d-block"
+              *ngIf="f['registrationNumber'].touched && (f['registrationNumber'].errors?.['minlength'] || f['registrationNumber'].errors?.['maxlength'])">
+              Must be between 4 and 15 characters.
             </small>
           </div>
 
-          <div class="col-md-6">
-            <label class="form-label small fw-semibold">Model</label>
-            <input type="text" class="form-control" formControlName="model" placeholder="e.g. Swift"
-              [class.is-invalid]="f['model'].invalid && f['model'].touched">
-            <small class="text-danger small mt-1 d-block" *ngIf="f['model'].touched && f['model'].invalid">
-              Model is required.
+          <div class="row g-3 mb-3">
+            <div class="col-md-6">
+              <label class="form-label small fw-semibold">Manufacturer</label>
+              <input type="text" class="form-control" formControlName="manufacturer" placeholder="e.g. Maruti Suzuki"
+                [class.is-invalid]="f['manufacturer'].invalid && f['manufacturer'].touched">
+              <small class="text-danger small mt-1 d-block" *ngIf="f['manufacturer'].touched && f['manufacturer'].invalid">
+                Manufacturer is required.
+              </small>
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label small fw-semibold">Model</label>
+              <input type="text" class="form-control" formControlName="model" placeholder="e.g. Swift"
+                [class.is-invalid]="f['model'].invalid && f['model'].touched">
+              <small class="text-danger small mt-1 d-block" *ngIf="f['model'].touched && f['model'].invalid">
+                Model is required.
+              </small>
+            </div>
+          </div>
+
+          <div class="row g-3 mb-3">
+            <div class="col-md-6">
+              <label class="form-label small fw-semibold">Variant <span class="fw-normal text-secondary">(optional)</span></label>
+              <input type="text" class="form-control" formControlName="variant" placeholder="e.g. VXI">
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label small fw-semibold">Color</label>
+              <input type="text" class="form-control" formControlName="color" placeholder="e.g. White"
+                [class.is-invalid]="f['color'].invalid && f['color'].touched">
+              <small class="text-danger small mt-1 d-block" *ngIf="f['color'].touched && f['color'].invalid">
+                Color is required.
+              </small>
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label small fw-semibold">Manufacturing Year</label>
+            <input type="number" class="form-control" formControlName="manufacturingYear"
+              [placeholder]="'e.g. ' + currentYear" [min]="1980" [max]="currentYear"
+              [class.is-invalid]="f['manufacturingYear'].invalid && f['manufacturingYear'].touched">
+            <small class="text-danger small mt-1 d-block" *ngIf="f['manufacturingYear'].touched && f['manufacturingYear'].invalid">
+              Enter a year between 1980 and {{ currentYear }}.
             </small>
           </div>
         </div>
 
-        <div class="row g-3 mb-3">
-          <div class="col-md-6">
-            <label class="form-label small fw-semibold">Variant <span class="fw-normal text-secondary">(optional)</span></label>
-            <input type="text" class="form-control" formControlName="variant" placeholder="e.g. VXI">
+        <!-- ══════════ STEP 2 — Classification ══════════ -->
+        <div *ngIf="currentStep === 2">
+          <p class="text-uppercase small fw-bold text-primary mb-3">
+            <i class="bi bi-tag-fill me-1"></i> Classification
+          </p>
+
+          <div class="row g-3 mb-3">
+            <div class="col-md-6">
+              <label class="form-label small fw-semibold">Vehicle Type</label>
+              <select class="form-select" formControlName="vehicleType"
+                [class.is-invalid]="f['vehicleType'].invalid && f['vehicleType'].touched">
+                <option value="" disabled selected>Select vehicle type</option>
+                <option *ngFor="let type of vehicleTypes" [value]="type">{{ type | titlecase }}</option>
+              </select>
+              <small class="text-danger small mt-1 d-block" *ngIf="f['vehicleType'].touched && f['vehicleType'].invalid">
+                Please select a vehicle type.
+              </small>
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label small fw-semibold">Fuel Type</label>
+              <select class="form-select" formControlName="fuelType"
+                [class.is-invalid]="f['fuelType'].invalid && f['fuelType'].touched">
+                <option value="" disabled selected>Select fuel type</option>
+                <option *ngFor="let fuel of fuelTypes" [value]="fuel">{{ fuel | titlecase }}</option>
+              </select>
+              <small class="text-danger small mt-1 d-block" *ngIf="f['fuelType'].touched && f['fuelType'].invalid">
+                Please select a fuel type.
+              </small>
+            </div>
           </div>
 
-          <div class="col-md-6">
-            <label class="form-label small fw-semibold">Color</label>
-            <input type="text" class="form-control" formControlName="color" placeholder="e.g. White"
-              [class.is-invalid]="f['color'].invalid && f['color'].touched">
-            <small class="text-danger small mt-1 d-block" *ngIf="f['color'].touched && f['color'].invalid">
-              Color is required.
-            </small>
-          </div>
-        </div>
-
-        <div class="mb-3">
-          <label class="form-label small fw-semibold">Manufacturing Year</label>
-          <input type="number" class="form-control" formControlName="manufacturingYear"
-            [placeholder]="'e.g. ' + currentYear" [min]="1980" [max]="currentYear"
-            [class.is-invalid]="f['manufacturingYear'].invalid && f['manufacturingYear'].touched">
-          <small class="text-danger small mt-1 d-block" *ngIf="f['manufacturingYear'].touched && f['manufacturingYear'].invalid">
-            Enter a year between 1980 and {{ currentYear }}.
-          </small>
-        </div>
-
-        <hr class="my-4">
-
-        <!-- ── Classification Section ── -->
-        <p class="text-uppercase small fw-bold text-primary mb-3">
-          <i class="bi bi-tag-fill me-1"></i> Classification
-        </p>
-
-        <div class="row g-3 mb-3">
-          <div class="col-md-6">
-            <label class="form-label small fw-semibold">Vehicle Type</label>
-            <select class="form-select" formControlName="vehicleType"
-              [class.is-invalid]="f['vehicleType'].invalid && f['vehicleType'].touched">
-              <option value="" disabled selected>Select vehicle type</option>
-              <option *ngFor="let type of vehicleTypes" [value]="type">{{ type | titlecase }}</option>
+          <div class="mb-3">
+            <label class="form-label small fw-semibold">Transmission</label>
+            <select class="form-select" formControlName="transmission"
+              [class.is-invalid]="f['transmission'].invalid && f['transmission'].touched">
+              <option value="" disabled selected>Select transmission</option>
+              <option *ngFor="let t of transmissions" [value]="t">{{ t | titlecase }}</option>
             </select>
-            <small class="text-danger small mt-1 d-block" *ngIf="f['vehicleType'].touched && f['vehicleType'].invalid">
-              Please select a vehicle type.
-            </small>
-          </div>
-
-          <div class="col-md-6">
-            <label class="form-label small fw-semibold">Fuel Type</label>
-            <select class="form-select" formControlName="fuelType"
-              [class.is-invalid]="f['fuelType'].invalid && f['fuelType'].touched">
-              <option value="" disabled selected>Select fuel type</option>
-              <option *ngFor="let fuel of fuelTypes" [value]="fuel">{{ fuel | titlecase }}</option>
-            </select>
-            <small class="text-danger small mt-1 d-block" *ngIf="f['fuelType'].touched && f['fuelType'].invalid">
-              Please select a fuel type.
+            <small class="text-danger small mt-1 d-block" *ngIf="f['transmission'].touched && f['transmission'].invalid">
+              Please select a transmission type.
             </small>
           </div>
         </div>
 
-        <div class="mb-3">
-          <label class="form-label small fw-semibold">Transmission</label>
-          <select class="form-select" formControlName="transmission"
-            [class.is-invalid]="f['transmission'].invalid && f['transmission'].touched">
-            <option value="" disabled selected>Select transmission</option>
-            <option *ngFor="let t of transmissions" [value]="t">{{ t | titlecase }}</option>
-          </select>
-          <small class="text-danger small mt-1 d-block" *ngIf="f['transmission'].touched && f['transmission'].invalid">
-            Please select a transmission type.
-          </small>
-        </div>
+        <!-- ══════════ STEP 3 — Capacity & Comfort ══════════ -->
+        <div *ngIf="currentStep === 3">
+          <p class="text-uppercase small fw-bold text-primary mb-3">
+            <i class="bi bi-person-fill me-1"></i> Capacity & Comfort
+          </p>
 
-        <hr class="my-4">
+          <div class="row g-3 mb-3">
+            <div class="col-md-6">
+              <label class="form-label small fw-semibold">Seat Capacity</label>
+              <input type="number" class="form-control" formControlName="seatCapacity" placeholder="e.g. 4"
+                min="1" max="60" [class.is-invalid]="f['seatCapacity'].invalid && f['seatCapacity'].touched">
+              <small class="text-danger small mt-1 d-block" *ngIf="f['seatCapacity'].touched && f['seatCapacity'].invalid">
+                Enter a value between 1 and 60.
+              </small>
+            </div>
 
-        <!-- ── Capacity & Comfort Section ── -->
-        <p class="text-uppercase small fw-bold text-primary mb-3">
-          <i class="bi bi-person-fill me-1"></i> Capacity & Comfort
-        </p>
-
-        <div class="row g-3 mb-3">
-          <div class="col-md-6">
-            <label class="form-label small fw-semibold">Seat Capacity</label>
-            <input type="number" class="form-control" formControlName="seatCapacity" placeholder="e.g. 4"
-              min="1" max="60" [class.is-invalid]="f['seatCapacity'].invalid && f['seatCapacity'].touched">
-            <small class="text-danger small mt-1 d-block" *ngIf="f['seatCapacity'].touched && f['seatCapacity'].invalid">
-              Enter a value between 1 and 60.
-            </small>
+            <div class="col-md-6">
+              <label class="form-label small fw-semibold">Luggage Capacity</label>
+              <input type="number" class="form-control" formControlName="luggageCapacity" placeholder="e.g. 2"
+                min="0" [class.is-invalid]="f['luggageCapacity'].invalid && f['luggageCapacity'].touched">
+              <small class="text-danger small mt-1 d-block" *ngIf="f['luggageCapacity'].touched && f['luggageCapacity'].invalid">
+                Enter a value of 0 or more.
+              </small>
+            </div>
           </div>
 
-          <div class="col-md-6">
-            <label class="form-label small fw-semibold">Luggage Capacity</label>
-            <input type="number" class="form-control" formControlName="luggageCapacity" placeholder="e.g. 2"
-              min="0" [class.is-invalid]="f['luggageCapacity'].invalid && f['luggageCapacity'].touched">
-            <small class="text-danger small mt-1 d-block" *ngIf="f['luggageCapacity'].touched && f['luggageCapacity'].invalid">
-              Enter a value of 0 or more.
-            </small>
-          </div>
-        </div>
-
-        <div class="mb-3">
-          <label class="form-label small fw-semibold mb-2">Features</label>
-          <div class="d-flex align-items-center justify-content-between border rounded-3 p-3">
-            <label class="mb-0 small fw-semibold" style="cursor: pointer;">
-              <i class="bi bi-snow text-primary me-2"></i>Air Conditioned
-            </label>
-            <div class="form-check form-switch mb-0">
-              <input class="form-check-input" type="checkbox" formControlName="airConditioned">
+          <div class="mb-3">
+            <label class="form-label small fw-semibold mb-2">Features</label>
+            <div class="d-flex align-items-center justify-content-between border rounded-3 p-3">
+              <label class="mb-0 small fw-semibold" style="cursor: pointer;">
+                <i class="bi bi-snow text-primary me-2"></i>Air Conditioned
+              </label>
+              <div class="form-check form-switch mb-0">
+                <input class="form-check-input" type="checkbox" formControlName="airConditioned">
+              </div>
             </div>
           </div>
         </div>
 
-        <!-- Submit -->
-        <button type="submit" class="btn btn-primary w-100 py-2 fw-semibold shadow-sm mt-3" [disabled]="isSubmitting">
-          <span class="spinner-border spinner-border-sm me-2" *ngIf="isSubmitting"></span>
-          <i class="bi bi-plus-lg me-1" *ngIf="!isSubmitting"></i>
-          {{ isSubmitting ? 'Registering...' : 'Register Vehicle' }}
-        </button>
+        <!-- ══════════ STEP 4 — Review & Submit ══════════ -->
+        <div *ngIf="currentStep === 4">
+          <p class="text-uppercase small fw-bold text-primary mb-3">
+            <i class="bi bi-clipboard-check me-1"></i> Review Details
+          </p>
+
+          <!-- Identity -->
+          <div class="border rounded-3 p-3 mb-3">
+            <div class="d-flex align-items-center justify-content-between mb-2">
+              <span class="small fw-bold text-secondary text-uppercase">Vehicle Identity</span>
+              <button type="button" class="btn btn-link btn-sm p-0" (click)="editStep(1)">Edit</button>
+            </div>
+            <div class="row small">
+              <div class="col-6 mb-2"><span class="text-secondary">Registration:</span> <span class="fw-semibold">{{ f['registrationNumber'].value | uppercase }}</span></div>
+              <div class="col-6 mb-2"><span class="text-secondary">Manufacturer:</span> <span class="fw-semibold">{{ f['manufacturer'].value }}</span></div>
+              <div class="col-6 mb-2"><span class="text-secondary">Model:</span> <span class="fw-semibold">{{ f['model'].value }}</span></div>
+              <div class="col-6 mb-2" *ngIf="f['variant'].value"><span class="text-secondary">Variant:</span> <span class="fw-semibold">{{ f['variant'].value }}</span></div>
+              <div class="col-6 mb-2"><span class="text-secondary">Color:</span> <span class="fw-semibold">{{ f['color'].value }}</span></div>
+              <div class="col-6 mb-2"><span class="text-secondary">Year:</span> <span class="fw-semibold">{{ f['manufacturingYear'].value }}</span></div>
+            </div>
+          </div>
+
+          <!-- Classification -->
+          <div class="border rounded-3 p-3 mb-3">
+            <div class="d-flex align-items-center justify-content-between mb-2">
+              <span class="small fw-bold text-secondary text-uppercase">Classification</span>
+              <button type="button" class="btn btn-link btn-sm p-0" (click)="editStep(2)">Edit</button>
+            </div>
+            <div class="d-flex flex-wrap gap-2">
+              <span class="badge rounded-pill text-bg-light"><i class="bi" [ngClass]="vehicleIcon(f['vehicleType'].value)"></i> {{ f['vehicleType'].value | titlecase }}</span>
+              <span class="badge rounded-pill text-bg-light"><i class="bi" [ngClass]="fuelIcon(f['fuelType'].value)"></i> {{ f['fuelType'].value | titlecase }}</span>
+              <span class="badge rounded-pill text-bg-light"><i class="bi bi-gear-wide-connected"></i> {{ f['transmission'].value | titlecase }}</span>
+            </div>
+          </div>
+
+          <!-- Capacity -->
+          <div class="border rounded-3 p-3 mb-4">
+            <div class="d-flex align-items-center justify-content-between mb-2">
+              <span class="small fw-bold text-secondary text-uppercase">Capacity & Comfort</span>
+              <button type="button" class="btn btn-link btn-sm p-0" (click)="editStep(3)">Edit</button>
+            </div>
+            <div class="d-flex flex-wrap gap-2">
+              <span class="badge rounded-pill text-bg-light"><i class="bi bi-person-lines-fill"></i> {{ f['seatCapacity'].value }} seats</span>
+              <span class="badge rounded-pill text-bg-light"><i class="bi bi-briefcase"></i> {{ f['luggageCapacity'].value }} bags</span>
+              <span class="badge rounded-pill text-bg-light" *ngIf="f['airConditioned'].value"><i class="bi bi-snow"></i> AC</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── Navigation Buttons ── -->
+        <div class="d-flex gap-2 mt-4">
+          <button type="button" class="btn btn-outline-secondary rounded-3 flex-grow-1" *ngIf="currentStep > 1" (click)="prevStep()">
+            <i class="bi bi-arrow-left me-1"></i> Back
+          </button>
+
+          <button type="button" class="btn btn-primary rounded-3 flex-grow-1 fw-semibold" *ngIf="currentStep < steps.length" (click)="nextStep()">
+            Next <i class="bi bi-arrow-right ms-1"></i>
+          </button>
+
+          <button type="submit" class="btn btn-primary rounded-3 flex-grow-1 fw-semibold" *ngIf="currentStep === steps.length" [disabled]="isSubmitting">
+            <span class="spinner-border spinner-border-sm me-2" *ngIf="isSubmitting"></span>
+            <i class="bi bi-check-lg me-1" *ngIf="!isSubmitting"></i>
+            {{ isSubmitting ? 'Registering...' : 'Confirm & Register Vehicle' }}
+          </button>
+        </div>
 
       </form>
     </div>

@@ -10,6 +10,7 @@ import { Adminlogin } from './features/auth/components/admin-login/adminlogin';
 import { Admindashboard } from './features/admin/admindashboard/admindashboard';
 import { Drivercreatebooking } from './features/driver_create_booking/drivercreatebooking';
 import { Getdriverdata } from './features/getdriverdata/getdriverdata';
+import { Tripbookingdriver } from './features/tripbookingdriver/tripbookingdriver';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'auth', pathMatch: 'full' },
@@ -34,9 +35,13 @@ export const routes: Routes = [
     path: 'driver-create-carbooking',
     component: Drivercreatebooking,
   },
-   {
+  {
     path: 'driver-get-carbooking',
     component: Getdriverdata,
+  },
+  {
+    path: 'trip-booking/:vehicleId',
+    component: Tripbookingdriver,
   },
 
   { path: '**', redirectTo: 'auth' },

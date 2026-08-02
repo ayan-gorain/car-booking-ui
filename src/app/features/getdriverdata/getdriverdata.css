@@ -1,0 +1,48 @@
+:host {
+  display: block;
+}
+
+.fleet-card-square {
+  aspect-ratio: 1 / 1;
+}
+
+.fleet-card-square .overflow-auto {
+  scrollbar-width: thin;
+}
+
+@media (max-width: 575.98px) {
+  .fleet-card-square {
+    aspect-ratio: auto;
+  }
+}
+
+.modal-backdrop-custom {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.45);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1050;
+  padding: 1rem;
+  animation: fadeInBackdrop 0.15s ease;
+}
+
+@keyframes fadeInBackdrop {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.modal-confirm {
+  width: 100%;
+  max-width: 380px;
+}
+
+.modal-edit {
+  width: 100%;
+  max-width: 640px;
+  max-height: 90vh;
+  overflow-y: auto;
+}

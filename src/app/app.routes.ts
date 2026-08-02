@@ -5,9 +5,11 @@ import { ResetPassword } from './features/auth/components/reset-password/reset-p
 import { Auth } from './features/auth/auth';
 import { Dashboard } from './features/dashboard/dashboard';
 import { Carbooking } from './features/carbooking/carbooking';
-import { Driververification } from './features/driver_verification/driververification/driververification';
+import { Driververification } from './features/driver_verification/driververification';
 import { Adminlogin } from './features/auth/components/admin-login/adminlogin';
 import { Admindashboard } from './features/admin/admindashboard/admindashboard';
+import { Drivercreatebooking } from './features/driver_create_booking/drivercreatebooking';
+import { Getdriverdata } from './features/getdriverdata/getdriverdata';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'auth', pathMatch: 'full' },
@@ -27,6 +29,14 @@ export const routes: Routes = [
   {
     path: 'admin-dashboard',
     component: Admindashboard,
+  },
+  {
+    path: 'driver-create-carbooking',
+    component: Drivercreatebooking,
+  },
+   {
+    path: 'driver-get-carbooking',
+    component: Getdriverdata,
   },
 
   { path: '**', redirectTo: 'auth' },

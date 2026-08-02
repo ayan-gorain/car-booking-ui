@@ -1,0 +1,233 @@
+<div class="container-fluid py-5" style="max-width: 1080px;">
+
+  <!-- Header -->
+  <div class="text-center mb-4">
+    <div class="d-inline-flex align-items-center justify-content-center rounded-circle bg-primary bg-opacity-10 mb-3"
+      style="width:56px;height:56px;">
+      <i class="bi bi-collection-fill text-primary fs-3"></i>
+    </div>
+    <h3 class="fw-bold mb-1">Your Fleet</h3>
+    <p class="text-secondary small mb-0">View, edit, or remove any registered vehicle</p>
+  </div>
+
+  <!-- Alerts -->
+  <div class="alert alert-success d-flex align-items-center gap-2 py-2" *ngIf="successMessage">
+    <i class="bi bi-check-circle-fill"></i>
+    <span>{{ successMessage }}</span>
+  </div>
+  <div class="alert alert-danger d-flex align-items-start gap-2 py-2" *ngIf="errorMessage">
+    <i class="bi bi-exclamation-triangle-fill mt-1"></i>
+    <span>{{ errorMessage }}</span>
+  </div>
+
+  <!-- Loading -->
+  <div class="text-center py-5" *ngIf="isLoading">
+    <span class="spinner-border text-primary"></span>
+    <p class="text-secondary small mt-3 mb-0">Loading your vehicles...</p>
+  </div>
+
+  <!-- Fleet -->
+  <div *ngIf="!isLoading">
+
+    <div class="d-flex align-items-center justify-content-between mb-3" *ngIf="vehicles.length > 0">
+      <p class="text-uppercase small fw-bold text-primary mb-0">
+        <i class="bi bi-list-ul me-1"></i> Registered Vehicles
+      </p>
+      <span class="badge rounded-pill text-bg-light">{{ vehicles.length }} vehicle{{ vehicles.length === 1 ? '' : 's' }}</span>
+    </div>
+
+    <div class="row g-3">
+      <div class="col-sm-6 col-lg-4" *ngFor="let vehicle of vehicles">
+        <div class="card border-0 shadow-sm rounded-4 h-100 fleet-card-square"
+          [style.borderTop]="'4px solid ' + vehicleAccent(vehicle.vehicleType)">
+          <div class="card-body p-3 p-md-4 d-flex flex-column h-100">
+
+            <div class="d-flex justify-content-end gap-2 mb-2">
+              <button class="btn btn-outline-primary btn-sm rounded-3" type="button" (click)="startEdit(vehicle)" title="Edit vehicle">
+                <i class="bi bi-pencil-square"></i>
+              </button>
+              <button class="btn btn-outline-danger btn-sm rounded-3" type="button" (click)="confirmDelete(vehicle)" title="Remove vehicle">
+                <i class="bi bi-trash3"></i>
+              </button>
+            </div>
+
+            <div class="d-flex flex-column align-items-center text-center flex-grow-1 justify-content-center overflow-auto">
+              <div class="d-inline-flex align-items-center justify-content-center rounded-circle flex-shrink-0 mb-3"
+                [style.background]="vehicleAccent(vehicle.vehicleType) + '1a'" style="width:56px;height:56px;">
+                <i class="bi fs-4" [ngClass]="vehicleIcon(vehicle.vehicleType)" [style.color]="vehicleAccent(vehicle.vehicleType)"></i>
+              </div>
+
+              <h6 class="fw-bold mb-1">{{ vehicle.manufacturer }} {{ vehicle.model }}</h6>
+              <span class="badge rounded-pill text-bg-light mb-2" *ngIf="vehicle.variant">{{ vehicle.variant }}</span>
+
+              <div class="text-secondary small mb-2">
+                <span class="fw-semibold">{{ vehicle.registrationNumber }}</span>
+                <br>
+                {{ vehicle.manufacturingYear }} <span class="mx-1">&middot;</span> {{ vehicle.color }}
+              </div>
+
+              <div class="d-flex flex-wrap justify-content-center gap-2">
+                <span class="badge rounded-pill text-bg-light"><i class="bi" [ngClass]="fuelIcon(vehicle.fuelType)"></i> {{ vehicle.fuelType | titlecase }}</span>
+                <span class="badge rounded-pill text-bg-light"><i class="bi bi-gear-wide-connected"></i> {{ vehicle.transmission | titlecase }}</span>
+                <span class="badge rounded-pill text-bg-light"><i class="bi bi-person-lines-fill"></i> {{ vehicle.seatCapacity }}</span>
+                <span class="badge rounded-pill text-bg-light"><i class="bi bi-briefcase"></i> {{ vehicle.luggageCapacity }}</span>
+                <span class="badge rounded-pill text-bg-light" *ngIf="vehicle.airConditioned"><i class="bi bi-snow"></i> AC</span>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Edit modal -->
+  <div class="modal-backdrop-custom" *ngIf="editingVehicle as vehicle" (click)="cancelEdit()">
+    <div class="card border-0 shadow rounded-4 modal-edit" (click)="$event.stopPropagation()">
+      <div class="card-body p-4 p-md-5">
+        <form [formGroup]="editForm" (ngSubmit)="saveEdit(vehicle)" novalidate>
+
+          <div class="d-flex align-items-center justify-content-between mb-3">
+            <p class="text-uppercase small fw-bold text-primary mb-0">
+              <i class="bi bi-pencil-square me-1"></i> Editing {{ vehicle.manufacturer }} {{ vehicle.model }}
+            </p>
+            <button type="button" class="btn-close" aria-label="Close" (click)="cancelEdit()"></button>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label small fw-semibold">Registration Number</label>
+            <input type="text" class="form-control text-uppercase" formControlName="registrationNumber"
+              [class.is-invalid]="f['registrationNumber'].invalid && f['registrationNumber'].touched">
+            <small class="text-danger small mt-1 d-block" *ngIf="f['registrationNumber'].touched && f['registrationNumber'].invalid">
+              Must be 4–15 characters.
+            </small>
+          </div>
+
+          <div class="row g-3 mb-3">
+            <div class="col-md-6">
+              <label class="form-label small fw-semibold">Manufacturer</label>
+              <input type="text" class="form-control" formControlName="manufacturer"
+                [class.is-invalid]="f['manufacturer'].invalid && f['manufacturer'].touched">
+              <small class="text-danger small mt-1 d-block" *ngIf="f['manufacturer'].touched && f['manufacturer'].invalid">
+                Manufacturer is required.
+              </small>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label small fw-semibold">Model</label>
+              <input type="text" class="form-control" formControlName="model"
+                [class.is-invalid]="f['model'].invalid && f['model'].touched">
+              <small class="text-danger small mt-1 d-block" *ngIf="f['model'].touched && f['model'].invalid">
+                Model is required.
+              </small>
+            </div>
+          </div>
+
+          <div class="row g-3 mb-3">
+            <div class="col-md-6">
+              <label class="form-label small fw-semibold">Variant <span class="fw-normal text-secondary">(optional)</span></label>
+              <input type="text" class="form-control" formControlName="variant">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label small fw-semibold">Color</label>
+              <input type="text" class="form-control" formControlName="color"
+                [class.is-invalid]="f['color'].invalid && f['color'].touched">
+              <small class="text-danger small mt-1 d-block" *ngIf="f['color'].touched && f['color'].invalid">
+                Color is required.
+              </small>
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label small fw-semibold">Manufacturing Year</label>
+            <input type="number" class="form-control" formControlName="manufacturingYear" [min]="1980" [max]="currentYear"
+              [class.is-invalid]="f['manufacturingYear'].invalid && f['manufacturingYear'].touched">
+            <small class="text-danger small mt-1 d-block" *ngIf="f['manufacturingYear'].touched && f['manufacturingYear'].invalid">
+              Enter a year between 1980 and {{ currentYear }}.
+            </small>
+          </div>
+
+          <div class="row g-3 mb-3">
+            <div class="col-md-6">
+              <label class="form-label small fw-semibold">Vehicle Type</label>
+              <select class="form-select" formControlName="vehicleType"
+                [class.is-invalid]="f['vehicleType'].invalid && f['vehicleType'].touched">
+                <option *ngFor="let type of vehicleTypes" [value]="type">{{ type | titlecase }}</option>
+              </select>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label small fw-semibold">Fuel Type</label>
+              <select class="form-select" formControlName="fuelType"
+                [class.is-invalid]="f['fuelType'].invalid && f['fuelType'].touched">
+                <option *ngFor="let fuel of fuelTypes" [value]="fuel">{{ fuel | titlecase }}</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="row g-3 mb-3">
+            <div class="col-md-6">
+              <label class="form-label small fw-semibold">Transmission</label>
+              <select class="form-select" formControlName="transmission"
+                [class.is-invalid]="f['transmission'].invalid && f['transmission'].touched">
+                <option *ngFor="let t of transmissions" [value]="t">{{ t | titlecase }}</option>
+              </select>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label small fw-semibold">Seat Capacity</label>
+              <input type="number" class="form-control" formControlName="seatCapacity" min="1" max="60"
+                [class.is-invalid]="f['seatCapacity'].invalid && f['seatCapacity'].touched">
+            </div>
+          </div>
+
+          <div class="row g-3 mb-3">
+            <div class="col-md-6">
+              <label class="form-label small fw-semibold">Luggage Capacity</label>
+              <input type="number" class="form-control" formControlName="luggageCapacity" min="0"
+                [class.is-invalid]="f['luggageCapacity'].invalid && f['luggageCapacity'].touched">
+            </div>
+            <div class="col-md-6 d-flex align-items-end">
+              <div class="d-flex align-items-center justify-content-between border rounded-3 p-2 w-100">
+                <label class="mb-0 small fw-semibold" style="cursor: pointer;">
+                  <i class="bi bi-snow text-primary me-2"></i>AC
+                </label>
+                <div class="form-check form-switch mb-0">
+                  <input class="form-check-input" type="checkbox" formControlName="airConditioned">
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="d-flex gap-2 mt-3">
+            <button type="button" class="btn btn-outline-secondary rounded-3 flex-grow-1" (click)="cancelEdit()" [disabled]="isSaving">
+              Cancel
+            </button>
+            <button type="submit" class="btn btn-primary rounded-3 flex-grow-1" [disabled]="isSaving">
+              <span class="spinner-border spinner-border-sm me-2" *ngIf="isSaving"></span>
+              {{ isSaving ? 'Saving...' : 'Save Changes' }}
+            </button>
+          </div>
+
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Delete confirmation modal -->
+  <div class="modal-backdrop-custom" *ngIf="vehicleToDelete" (click)="cancelDelete()">
+    <div class="card border-0 shadow rounded-4 p-4 modal-confirm" (click)="$event.stopPropagation()">
+      <div class="d-inline-flex align-items-center justify-content-center rounded-circle bg-danger bg-opacity-10 mb-3 mx-auto"
+        style="width:52px;height:52px;">
+        <i class="bi bi-exclamation-triangle-fill text-danger fs-4"></i>
+      </div>
+      <h6 class="fw-bold text-center mb-2">Remove this vehicle?</h6>
+      <p class="text-secondary small text-center mb-4">
+        {{ vehicleToDelete.manufacturer }} {{ vehicleToDelete.model }} ({{ vehicleToDelete.registrationNumber }}) will be removed from your fleet.
+      </p>
+      <div class="d-flex gap-2">
+        <button type="button" class="btn btn-outline-secondary rounded-3 flex-grow-1" (click)="cancelDelete()">Cancel</button>
+        <button type="button" class="btn btn-danger rounded-3 flex-grow-1" (click)="executeDelete()">Remove</button>
+      </div>
+    </div>
+  </div>
+
+</div>

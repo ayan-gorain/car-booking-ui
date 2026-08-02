@@ -3,6 +3,7 @@ import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
 export type DocStatus = 'PENDING' | 'APPROVED' | 'REJECTED';
+export type DriverStatus = 'PENDING' | 'APPROVED' | 'REJECTED' | 'WAITING_RESUBMISSION';
 
 export interface DocumentReview {
   status: DocStatus;
@@ -15,7 +16,7 @@ export interface DriverVerificationItem {
   email: string;
   phoneNumber: string;
   submittedAt: string;
-  status: DocStatus;
+  status: DriverStatus;
   drivingLicenseNumber: string;
   drivingLicenseFrontUrl: string;
   drivingLicenseBackUrl: string;
@@ -25,38 +26,32 @@ export interface DriverVerificationItem {
   governmentIdBackUrl: string;
   selfieUrl: string;
   rejectionReason?: string;
-  // Per-document reviews
+  // Grouped per-document-type reviews (one decision per section, not per photo)
   docReviews: {
-    drivingLicenseFront: DocumentReview;
-    drivingLicenseBack: DocumentReview;
-    governmentIdFront: DocumentReview;
-    governmentIdBack: DocumentReview;
+    drivingLicense: DocumentReview;
+    governmentId: DocumentReview;
     selfie: DocumentReview;
   };
 }
 
+type DocGroupKey = keyof DriverVerificationItem['docReviews'];
+
 const makePendingReviews = () => ({
-  drivingLicenseFront: { status: 'PENDING' as DocStatus },
-  drivingLicenseBack:  { status: 'PENDING' as DocStatus },
-  governmentIdFront:   { status: 'PENDING' as DocStatus },
-  governmentIdBack:    { status: 'PENDING' as DocStatus },
-  selfie:              { status: 'PENDING' as DocStatus },
+  drivingLicense: { status: 'PENDING' as DocStatus },
+  governmentId:   { status: 'PENDING' as DocStatus },
+  selfie:         { status: 'PENDING' as DocStatus },
 });
 
 const makeApprovedReviews = () => ({
-  drivingLicenseFront: { status: 'APPROVED' as DocStatus },
-  drivingLicenseBack:  { status: 'APPROVED' as DocStatus },
-  governmentIdFront:   { status: 'APPROVED' as DocStatus },
-  governmentIdBack:    { status: 'APPROVED' as DocStatus },
-  selfie:              { status: 'APPROVED' as DocStatus },
+  drivingLicense: { status: 'APPROVED' as DocStatus },
+  governmentId:   { status: 'APPROVED' as DocStatus },
+  selfie:         { status: 'APPROVED' as DocStatus },
 });
 
-const makeRejectedReviews = () => ({
-  drivingLicenseFront: { status: 'APPROVED' as DocStatus },
-  drivingLicenseBack:  { status: 'APPROVED' as DocStatus },
-  governmentIdFront:   { status: 'REJECTED' as DocStatus, rejectionReason: 'Blurred image' },
-  governmentIdBack:    { status: 'REJECTED' as DocStatus, rejectionReason: 'Blurred image' },
-  selfie:              { status: 'APPROVED' as DocStatus },
+const makeWaitingResubmissionReviews = () => ({
+  drivingLicense: { status: 'REJECTED' as DocStatus, rejectionReason: 'Blurred image, please resubmit.' },
+  governmentId:   { status: 'APPROVED' as DocStatus },
+  selfie:         { status: 'APPROVED' as DocStatus },
 });
 
 @Component({
@@ -126,8 +121,8 @@ export class DriverVerificationApproval implements OnInit {
       email: 'priya.patel@example.com',
       phoneNumber: '9123456780',
       submittedAt: '2026-07-30 09:20',
-      status: 'REJECTED',
-      rejectionReason: 'Blurred Driving License image provided.',
+      status: 'WAITING_RESUBMISSION',
+      rejectionReason: 'Blurred image, please resubmit.',
       drivingLicenseNumber: 'DL-0620200011223',
       drivingLicenseFrontUrl: 'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?auto=format&fit=crop&w=600&q=80',
       drivingLicenseBackUrl:  'https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=600&q=80',
@@ -136,19 +131,19 @@ export class DriverVerificationApproval implements OnInit {
       governmentIdFrontUrl: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=600&q=80',
       governmentIdBackUrl:  'https://images.unsplash.com/photo-1563986768609-322da13575f3?auto=format&fit=crop&w=600&q=80',
       selfieUrl: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=400&q=80',
-      docReviews: makeRejectedReviews(),
+      docReviews: makeWaitingResubmissionReviews(),
     },
   ];
 
   selectedDriver: DriverVerificationItem | null = null;
-  activeTab: 'ALL' | 'PENDING' | 'APPROVED' | 'REJECTED' = 'ALL';
+  activeTab: 'ALL' | 'PENDING' | 'APPROVED' | 'REJECTED' | 'WAITING_RESUBMISSION' = 'ALL';
   searchTerm: string = '';
 
   successMessage: string | null = null;
   errorMessage: string | null = null;
 
-  // Rejection reason input state
-  rejectingDocKey: string | null = null;
+  // Rejection reason input state (now keyed by doc GROUP, not individual photo)
+  rejectingDocKey: DocGroupKey | null = null;
   rejectReasonInput: string = '';
 
   // Image zoom modal
@@ -175,9 +170,26 @@ export class DriverVerificationApproval implements OnInit {
     });
   }
 
-  get pendingCount():  number { return this.drivers.filter((d) => d.status === 'PENDING').length;  }
-  get approvedCount(): number { return this.drivers.filter((d) => d.status === 'APPROVED').length; }
-  get rejectedCount(): number { return this.drivers.filter((d) => d.status === 'REJECTED').length; }
+  get pendingCount():            number { return this.drivers.filter((d) => d.status === 'PENDING').length; }
+  get approvedCount():           number { return this.drivers.filter((d) => d.status === 'APPROVED').length; }
+  get rejectedCount():           number { return this.drivers.filter((d) => d.status === 'REJECTED').length; }
+  get waitingResubmissionCount(): number { return this.drivers.filter((d) => d.status === 'WAITING_RESUBMISSION').length; }
+
+  /**
+   * Whether the card/modal-level Approve All / Reject All actions should be visible.
+   * Once any section has been rejected (status = WAITING_RESUBMISSION), these
+   * whole-application shortcuts are hidden — the admin must act per-section
+   * from that point on, since the driver still needs to resubmit something.
+   */
+  canTakeQuickAction(driver: DriverVerificationItem): boolean {
+    return driver.status === 'PENDING';
+  }
+
+  /** Friendly label for a driver-level status */
+  statusLabel(status: DriverStatus | DocStatus): string {
+    if (status === 'WAITING_RESUBMISSION') return 'Waiting Resubmission';
+    return status;
+  }
 
   // ===== MODAL =====
 
@@ -194,9 +206,9 @@ export class DriverVerificationApproval implements OnInit {
     this.cdr.detectChanges();
   }
 
-  // ===== PER-DOCUMENT ACTIONS =====
+  // ===== PER-DOCUMENT-GROUP ACTIONS =====
 
-  approveDoc(driver: DriverVerificationItem, docKey: keyof DriverVerificationItem['docReviews']): void {
+  approveDoc(driver: DriverVerificationItem, docKey: DocGroupKey): void {
     driver.docReviews[docKey].status = 'APPROVED';
     driver.docReviews[docKey].rejectionReason = undefined;
     if (this.rejectingDocKey === docKey) {
@@ -206,7 +218,7 @@ export class DriverVerificationApproval implements OnInit {
     this.cdr.detectChanges();
   }
 
-  startRejectDoc(docKey: string): void {
+  startRejectDoc(docKey: DocGroupKey): void {
     this.rejectingDocKey = docKey;
     this.rejectReasonInput = '';
     this.cdr.detectChanges();
@@ -218,7 +230,7 @@ export class DriverVerificationApproval implements OnInit {
     this.cdr.detectChanges();
   }
 
-  confirmRejectDoc(driver: DriverVerificationItem, docKey: keyof DriverVerificationItem['docReviews']): void {
+  confirmRejectDoc(driver: DriverVerificationItem, docKey: DocGroupKey): void {
     driver.docReviews[docKey].status = 'REJECTED';
     driver.docReviews[docKey].rejectionReason = this.rejectReasonInput.trim() || 'Document rejected by admin.';
     this.rejectingDocKey = null;
@@ -227,23 +239,31 @@ export class DriverVerificationApproval implements OnInit {
     this.cdr.detectChanges();
   }
 
-  /** Recomputes overall driver status from individual document statuses */
+  /**
+   * Recomputes overall driver status from the 3 grouped document statuses.
+   * A rejected document no longer marks the whole application as terminally
+   * REJECTED — it puts the driver into WAITING_RESUBMISSION so they can
+   * re-upload just the flagged document(s).
+   */
   private recomputeDriverStatus(driver: DriverVerificationItem): void {
     const reviews = Object.values(driver.docReviews);
+
     if (reviews.every((r) => r.status === 'APPROVED')) {
       driver.status = 'APPROVED';
       driver.rejectionReason = undefined;
       this.successMessage = `${driver.driverName}'s application is now fully APPROVED.`;
       setTimeout(() => { this.successMessage = null; this.cdr.detectChanges(); }, 4000);
+
     } else if (reviews.some((r) => r.status === 'REJECTED')) {
-      driver.status = 'REJECTED';
+      driver.status = 'WAITING_RESUBMISSION';
       const reasons = reviews
         .filter((r) => r.status === 'REJECTED' && r.rejectionReason)
         .map((r) => r.rejectionReason)
         .join('; ');
       driver.rejectionReason = reasons;
-      this.errorMessage = `${driver.driverName}'s application has rejected documents.`;
+      this.errorMessage = `${driver.driverName}'s application is waiting for document resubmission.`;
       setTimeout(() => { this.errorMessage = null; this.cdr.detectChanges(); }, 4000);
+
     } else {
       driver.status = 'PENDING';
       driver.rejectionReason = undefined;
@@ -253,10 +273,9 @@ export class DriverVerificationApproval implements OnInit {
   // ===== QUICK WHOLE-APPLICATION ACTIONS =====
 
   approveDriver(driver: DriverVerificationItem): void {
-    Object.keys(driver.docReviews).forEach((key) => {
-      const k = key as keyof DriverVerificationItem['docReviews'];
-      driver.docReviews[k].status = 'APPROVED';
-      driver.docReviews[k].rejectionReason = undefined;
+    (Object.keys(driver.docReviews) as DocGroupKey[]).forEach((key) => {
+      driver.docReviews[key].status = 'APPROVED';
+      driver.docReviews[key].rejectionReason = undefined;
     });
     driver.status = 'APPROVED';
     driver.rejectionReason = undefined;
@@ -266,6 +285,10 @@ export class DriverVerificationApproval implements OnInit {
   }
 
   rejectDriver(driver: DriverVerificationItem): void {
+    (Object.keys(driver.docReviews) as DocGroupKey[]).forEach((key) => {
+      driver.docReviews[key].status = 'REJECTED';
+      driver.docReviews[key].rejectionReason = 'Application rejected by admin.';
+    });
     driver.status = 'REJECTED';
     driver.rejectionReason = 'Application rejected by admin.';
     this.errorMessage = `${driver.driverName} (${driver.id}) application rejected.`;

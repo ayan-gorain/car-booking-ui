@@ -329,3 +329,12 @@
   border-radius: 14px;
   padding: 18px;
 }
+.status-waiting {
+  background: rgba(245, 158, 11, 0.18);
+  color: #fbbf24; /* amber-400 — visible on dark header */
+}
+
+.stat-chip-waiting {
+  background: rgba(245, 158, 11, 0.12);
+  color: #b45309; /* amber-700 — visible on light card background */
+}

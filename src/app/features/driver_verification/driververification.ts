@@ -7,7 +7,7 @@ import {
   Validators,
 } from '@angular/forms';
 import { Router } from '@angular/router';
-import { Main } from '../../service/main';
+import { Main } from '../service/main';
 
 type UploadField =
   | 'drivingLicenseFrontUrl'

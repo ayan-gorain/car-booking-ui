@@ -24,11 +24,12 @@
       </div>
       <div>
         <h5 class="fw-bold text-white mb-0">Driver Verification Approvals</h5>
-        <p class="text-white-50 small mb-0">Review documents per-field, approve or reject individual items.</p>
+        <p class="text-white-50 small mb-0">Review documents per-section, approve or reject each group.</p>
       </div>
     </div>
     <div class="d-flex align-items-center gap-2">
       <span class="stat-chip stat-chip-pending"><i class="bi bi-clock-history me-1"></i>{{ pendingCount }} Pending</span>
+      <span class="stat-chip stat-chip-waiting"><i class="bi bi-arrow-repeat me-1"></i>{{ waitingResubmissionCount }} Waiting Resubmission</span>
       <span class="stat-chip stat-chip-approved"><i class="bi bi-check-circle me-1"></i>{{ approvedCount }} Approved</span>
       <span class="stat-chip stat-chip-rejected"><i class="bi bi-x-circle me-1"></i>{{ rejectedCount }} Rejected</span>
     </div>
@@ -37,9 +38,10 @@
 
 <!-- ===== FILTERS & SEARCH ===== -->
 <div class="d-flex align-items-center justify-content-between flex-wrap gap-3 mb-4">
-  <div class="bg-white border rounded-pill p-1 d-inline-flex gap-1 shadow-sm">
+  <div class="bg-white border rounded-pill p-1 d-inline-flex gap-1 shadow-sm flex-wrap">
     <button class="filter-tab" [class.tab-active]="activeTab === 'ALL'"      (click)="activeTab = 'ALL'">All <span class="tab-count">{{ drivers.length }}</span></button>
     <button class="filter-tab" [class.tab-active]="activeTab === 'PENDING'"  (click)="activeTab = 'PENDING'">Pending <span class="tab-count">{{ pendingCount }}</span></button>
+    <button class="filter-tab" [class.tab-active]="activeTab === 'WAITING_RESUBMISSION'" (click)="activeTab = 'WAITING_RESUBMISSION'">Waiting Resubmission <span class="tab-count">{{ waitingResubmissionCount }}</span></button>
     <button class="filter-tab" [class.tab-active]="activeTab === 'APPROVED'" (click)="activeTab = 'APPROVED'">Approved <span class="tab-count">{{ approvedCount }}</span></button>
     <button class="filter-tab" [class.tab-active]="activeTab === 'REJECTED'" (click)="activeTab = 'REJECTED'">Rejected <span class="tab-count">{{ rejectedCount }}</span></button>
   </div>
@@ -79,7 +81,7 @@
           <span class="text-success fw-bold">{{ docProgress(driver).approved }}</span>
           <span class="text-muted">/</span>
           <span class="text-dark fw-bold">{{ docProgress(driver).total }}</span>
-          <span class="text-secondary" style="font-size:0.7rem;">docs ok</span>
+          <span class="text-secondary" style="font-size:0.7rem;">sections ok</span>
           <span *ngIf="docProgress(driver).rejected > 0" class="text-danger fw-bold ms-1">
             · {{ docProgress(driver).rejected }} rejected
           </span>
@@ -91,34 +93,40 @@
         <span class="status-badge"
           [class.status-pending]="driver.status === 'PENDING'"
           [class.status-approved]="driver.status === 'APPROVED'"
-          [class.status-rejected]="driver.status === 'REJECTED'">
+          [class.status-rejected]="driver.status === 'REJECTED'"
+          [class.status-waiting]="driver.status === 'WAITING_RESUBMISSION'">
           <i class="bi"
             [class.bi-clock-history]="driver.status === 'PENDING'"
             [class.bi-check-circle-fill]="driver.status === 'APPROVED'"
-            [class.bi-x-circle-fill]="driver.status === 'REJECTED'"></i>
-          {{ driver.status }}
+            [class.bi-x-circle-fill]="driver.status === 'REJECTED'"
+            [class.bi-arrow-repeat]="driver.status === 'WAITING_RESUBMISSION'"></i>
+          {{ statusLabel(driver.status) }}
         </span>
 
         <button class="btn-view-docs btn" (click)="openDocumentModal(driver)">
           <i class="bi bi-file-earmark-image me-1"></i>Review Docs
         </button>
 
-        <button *ngIf="driver.status !== 'APPROVED'" class="btn-approve btn" (click)="approveDriver(driver)">
+        <!-- Approve All / Reject All: only visible while a decision is still open.
+             Clicking either one hides both, since the application is now decided. -->
+        <button *ngIf="canTakeQuickAction(driver)" class="btn-approve btn" (click)="approveDriver(driver)">
           <i class="bi bi-check-circle me-1"></i>Approve All
         </button>
 
-        <button *ngIf="driver.status !== 'REJECTED'" class="btn-reject btn" (click)="rejectDriver(driver)">
-          <i class="bi bi-x-circle me-1"></i>Reject
+        <button *ngIf="canTakeQuickAction(driver)" class="btn-reject btn" (click)="rejectDriver(driver)">
+          <i class="bi bi-x-circle me-1"></i>Reject All
         </button>
       </div>
     </div>
 
-    <!-- Rejection reason -->
-    <div *ngIf="driver.status === 'REJECTED' && driver.rejectionReason"
+    <!-- Rejection / resubmission reason -->
+    <div *ngIf="(driver.status === 'REJECTED' || driver.status === 'WAITING_RESUBMISSION') && driver.rejectionReason"
       class="mt-2 rounded-2 px-3 py-2 d-flex align-items-center gap-2"
-      style="background:rgba(239,68,68,0.06);border:1px solid rgba(239,68,68,0.15);">
-      <i class="bi bi-info-circle text-danger small flex-shrink-0"></i>
-      <span class="small text-danger">{{ driver.rejectionReason }}</span>
+      [ngStyle]="driver.status === 'WAITING_RESUBMISSION'
+        ? {'background':'rgba(245,158,11,0.08)','border':'1px solid rgba(245,158,11,0.2)'}
+        : {'background':'rgba(239,68,68,0.06)','border':'1px solid rgba(239,68,68,0.15)'}">
+      <i class="bi bi-info-circle small flex-shrink-0" [class.text-danger]="driver.status === 'REJECTED'" [class.text-warning]="driver.status === 'WAITING_RESUBMISSION'"></i>
+      <span class="small" [class.text-danger]="driver.status === 'REJECTED'" [class.text-warning]="driver.status === 'WAITING_RESUBMISSION'">{{ driver.rejectionReason }}</span>
     </div>
   </div>
 
@@ -132,7 +140,7 @@
 
 
 <!-- ==================================================
-     PER-DOCUMENT REVIEW MODAL
+     PER-SECTION DOCUMENT REVIEW MODAL
 ================================================== -->
 <div *ngIf="selectedDriver" class="modal-backdrop-custom" (click)="closeDocumentModal()">
   <div class="modal-card bg-white" (click)="$event.stopPropagation()">
@@ -149,125 +157,85 @@
           <span class="status-badge ms-1"
             [class.status-pending]="selectedDriver.status === 'PENDING'"
             [class.status-approved]="selectedDriver.status === 'APPROVED'"
-            [class.status-rejected]="selectedDriver.status === 'REJECTED'">
-            {{ selectedDriver.status }}
+            [class.status-rejected]="selectedDriver.status === 'REJECTED'"
+            [class.status-waiting]="selectedDriver.status === 'WAITING_RESUBMISSION'">
+            {{ statusLabel(selectedDriver.status) }}
           </span>
         </div>
         <div class="text-white-50" style="font-size:0.78rem;">
           {{ selectedDriver.email }} | {{ selectedDriver.phoneNumber }}
           &nbsp;·&nbsp;
-          <span class="text-success">{{ docProgress(selectedDriver).approved }}</span>/{{ docProgress(selectedDriver).total }} docs approved
+          <span class="text-success">{{ docProgress(selectedDriver).approved }}</span>/{{ docProgress(selectedDriver).total }} sections approved
           <span *ngIf="docProgress(selectedDriver).rejected > 0" class="text-danger ms-1">
             · {{ docProgress(selectedDriver).rejected }} rejected
           </span>
         </div>
       </div>
-      <div class="d-flex gap-2 flex-shrink-0">
-        <button *ngIf="selectedDriver.status !== 'APPROVED'" class="btn-approve btn btn-sm" (click)="approveDriver(selectedDriver)">
+
+      <!-- Approve All / Reject All in modal header, same hide-on-decision behavior -->
+      <div class="d-flex gap-2 flex-shrink-0" *ngIf="canTakeQuickAction(selectedDriver)">
+        <button class="btn-approve btn btn-sm" (click)="approveDriver(selectedDriver)">
           <i class="bi bi-check-circle me-1"></i>Approve All
         </button>
+        <button class="btn-reject btn btn-sm" (click)="rejectDriver(selectedDriver)">
+          <i class="bi bi-x-circle me-1"></i>Reject All
+        </button>
       </div>
+
       <button type="button" class="btn-close btn-close-white flex-shrink-0 ms-2" (click)="closeDocumentModal()"></button>
     </div>
 
     <!-- Scrollable body -->
     <div class="overflow-auto flex-grow-1 p-4" style="background:#f8fafc;">
 
-      <!-- Driving License -->
-      <div class="doc-section mb-4">
-        <div class="d-flex align-items-center gap-2 mb-3">
-          <div class="rounded-2 p-1.5 d-flex align-items-center justify-content-center" style="background:rgba(99,102,241,0.1);width:32px;height:32px;">
-            <i class="bi bi-credit-card-2-front" style="color:#6366f1;"></i>
-          </div>
-          <h6 class="fw-bold text-dark mb-0">Driving License</h6>
-          <span class="info-chip">{{ selectedDriver.drivingLicenseNumber }}</span>
-        </div>
+      <!-- Driving License section -->
+      <ng-container *ngTemplateOutlet="docGroupCard; context: {
+        $implicit: selectedDriver.docReviews.drivingLicense,
+        docKey: 'drivingLicense',
+        label: 'Driving License',
+        meta: selectedDriver.drivingLicenseNumber,
+        icon: 'bi-credit-card-2-front',
+        images: [
+          { url: selectedDriver.drivingLicenseFrontUrl, label: 'DL Front Side' },
+          { url: selectedDriver.drivingLicenseBackUrl,  label: 'DL Back Side' }
+        ],
+        driver: selectedDriver
+      }"></ng-container>
 
-        <div class="row g-3">
-          <!-- DL Front -->
-          <div class="col-md-6">
-            <ng-container *ngTemplateOutlet="docCard; context: {
-              $implicit: selectedDriver.docReviews.drivingLicenseFront,
-              docKey: 'drivingLicenseFront',
-              label: 'DL Front Side',
-              imgUrl: selectedDriver.drivingLicenseFrontUrl,
-              driver: selectedDriver
-            }"></ng-container>
-          </div>
-          <!-- DL Back -->
-          <div class="col-md-6">
-            <ng-container *ngTemplateOutlet="docCard; context: {
-              $implicit: selectedDriver.docReviews.drivingLicenseBack,
-              docKey: 'drivingLicenseBack',
-              label: 'DL Back Side',
-              imgUrl: selectedDriver.drivingLicenseBackUrl,
-              driver: selectedDriver
-            }"></ng-container>
-          </div>
-        </div>
-      </div>
+      <!-- Government ID section -->
+      <ng-container *ngTemplateOutlet="docGroupCard; context: {
+        $implicit: selectedDriver.docReviews.governmentId,
+        docKey: 'governmentId',
+        label: selectedDriver.governmentIdType,
+        meta: selectedDriver.governmentIdNumber,
+        icon: 'bi-person-vcard',
+        images: [
+          { url: selectedDriver.governmentIdFrontUrl, label: selectedDriver.governmentIdType + ' Front' },
+          { url: selectedDriver.governmentIdBackUrl,  label: selectedDriver.governmentIdType + ' Back' }
+        ],
+        driver: selectedDriver
+      }"></ng-container>
 
-      <!-- Government ID -->
-      <div class="doc-section mb-4">
-        <div class="d-flex align-items-center gap-2 mb-3">
-          <div class="rounded-2 p-1.5 d-flex align-items-center justify-content-center" style="background:rgba(99,102,241,0.1);width:32px;height:32px;">
-            <i class="bi bi-person-vcard" style="color:#6366f1;"></i>
-          </div>
-          <h6 class="fw-bold text-dark mb-0">{{ selectedDriver.governmentIdType }}</h6>
-          <span class="info-chip">{{ selectedDriver.governmentIdNumber }}</span>
-        </div>
+      <!-- Selfie section -->
+      <ng-container *ngTemplateOutlet="docGroupCard; context: {
+        $implicit: selectedDriver.docReviews.selfie,
+        docKey: 'selfie',
+        label: 'Verification Selfie',
+        meta: null,
+        icon: 'bi-camera',
+        images: [
+          { url: selectedDriver.selfieUrl, label: 'Live Selfie Photo' }
+        ],
+        driver: selectedDriver
+      }"></ng-container>
 
-        <div class="row g-3">
-          <!-- Govt Front -->
-          <div class="col-md-6">
-            <ng-container *ngTemplateOutlet="docCard; context: {
-              $implicit: selectedDriver.docReviews.governmentIdFront,
-              docKey: 'governmentIdFront',
-              label: selectedDriver.governmentIdType + ' Front',
-              imgUrl: selectedDriver.governmentIdFrontUrl,
-              driver: selectedDriver
-            }"></ng-container>
-          </div>
-          <!-- Govt Back -->
-          <div class="col-md-6">
-            <ng-container *ngTemplateOutlet="docCard; context: {
-              $implicit: selectedDriver.docReviews.governmentIdBack,
-              docKey: 'governmentIdBack',
-              label: selectedDriver.governmentIdType + ' Back',
-              imgUrl: selectedDriver.governmentIdBackUrl,
-              driver: selectedDriver
-            }"></ng-container>
-          </div>
-        </div>
-      </div>
-
-      <!-- Selfie -->
-      <div class="doc-section">
-        <div class="d-flex align-items-center gap-2 mb-3">
-          <div class="rounded-2 p-1.5 d-flex align-items-center justify-content-center" style="background:rgba(99,102,241,0.1);width:32px;height:32px;">
-            <i class="bi bi-camera" style="color:#6366f1;"></i>
-          </div>
-          <h6 class="fw-bold text-dark mb-0">Verification Selfie</h6>
-        </div>
-        <div class="row g-3">
-          <div class="col-md-6">
-            <ng-container *ngTemplateOutlet="docCard; context: {
-              $implicit: selectedDriver.docReviews.selfie,
-              docKey: 'selfie',
-              label: 'Live Selfie Photo',
-              imgUrl: selectedDriver.selfieUrl,
-              driver: selectedDriver
-            }"></ng-container>
-          </div>
-        </div>
-      </div>
     </div>
 
     <!-- Modal footer -->
     <div class="px-4 py-3 border-top d-flex justify-content-between align-items-center" style="flex-shrink:0;">
       <span class="small text-secondary">
         <i class="bi bi-info-circle me-1"></i>
-        Approve or reject each document individually. Overall status updates automatically.
+        Approve or reject each document section. A rejected section puts the driver into "Waiting Resubmission".
       </span>
       <button class="btn btn-sm fw-semibold px-4 py-2 rounded-pill"
         style="background:#f1f5f9;color:#475569;border:1px solid #e2e8f0;"
@@ -277,72 +245,80 @@
 </div>
 
 <!-- ==================================================
-     REUSABLE DOCUMENT CARD TEMPLATE
+     REUSABLE DOCUMENT-GROUP CARD TEMPLATE
+     One Approve/Reject decision covers all photos in the group.
 ================================================== -->
-<ng-template #docCard let-review let-docKey="docKey" let-label="label" let-imgUrl="imgUrl" let-driver="driver">
-  <div class="doc-card" [class.doc-approved]="review.status === 'APPROVED'" [class.doc-rejected]="review.status === 'REJECTED'">
+<ng-template #docGroupCard let-review let-docKey="docKey" let-label="label" let-meta="meta" let-icon="icon" let-images="images" let-driver="driver">
+  <div class="doc-section mb-4">
 
-    <!-- Image preview -->
-    <div class="doc-preview-wrapper mb-2" style="height:170px;"
-      (click)="zoomImage(imgUrl, label)">
-      <img [src]="imgUrl" [alt]="label" class="w-100 h-100 object-fit-cover" />
-      <div class="doc-overlay">
-        <span class="btn btn-sm btn-light rounded-pill shadow fw-semibold px-3">
-          <i class="bi bi-zoom-in me-1"></i>Zoom
+    <!-- Section header: title + status + actions (single control for the whole group) -->
+    <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3">
+      <div class="d-flex align-items-center gap-2 flex-wrap">
+        <div class="rounded-2 p-1.5 d-flex align-items-center justify-content-center" style="background:rgba(99,102,241,0.1);width:32px;height:32px;">
+          <i class="bi" [ngClass]="icon" style="color:#6366f1;"></i>
+        </div>
+        <h6 class="fw-bold text-dark mb-0">{{ label }}</h6>
+        <span *ngIf="meta" class="info-chip">{{ meta }}</span>
+        <span class="doc-status-badge"
+          [class.doc-status-pending]="review.status === 'PENDING'"
+          [class.doc-status-approved]="review.status === 'APPROVED'"
+          [class.doc-status-rejected]="review.status === 'REJECTED'">
+          <i class="bi"
+            [class.bi-clock-history]="review.status === 'PENDING'"
+            [class.bi-check-circle-fill]="review.status === 'APPROVED'"
+            [class.bi-x-circle-fill]="review.status === 'REJECTED'"></i>
+          {{ review.status }}
         </span>
+      </div>
+
+      <!-- Approve/Reject shown only while this section is still PENDING;
+           clicking either hides both, same as the driver-card behavior. -->
+      <div *ngIf="review.status === 'PENDING' && rejectingDocKey !== docKey" class="d-flex gap-2">
+        <button class="btn-approve btn" style="font-size:0.75rem;padding:6px 16px;" (click)="approveDoc(driver, docKey)">
+          <i class="bi bi-check-circle me-1"></i>Approve
+        </button>
+        <button class="btn-reject btn" style="font-size:0.75rem;padding:6px 16px;" (click)="startRejectDoc(docKey)">
+          <i class="bi bi-x-circle me-1"></i>Reject
+        </button>
       </div>
     </div>
 
-    <!-- Label & status row -->
-    <div class="d-flex align-items-center justify-content-between mb-2">
-      <span class="fw-semibold text-dark" style="font-size:0.82rem;">{{ label }}</span>
-      <span class="doc-status-badge"
-        [class.doc-status-pending]="review.status === 'PENDING'"
-        [class.doc-status-approved]="review.status === 'APPROVED'"
-        [class.doc-status-rejected]="review.status === 'REJECTED'">
-        <i class="bi"
-          [class.bi-clock-history]="review.status === 'PENDING'"
-          [class.bi-check-circle-fill]="review.status === 'APPROVED'"
-          [class.bi-x-circle-fill]="review.status === 'REJECTED'"></i>
-        {{ review.status }}
-      </span>
-    </div>
-
-    <!-- Rejection reason (if any) -->
-    <div *ngIf="review.status === 'REJECTED' && review.rejectionReason"
-      class="doc-reject-reason mb-2">
-      <i class="bi bi-info-circle me-1"></i>{{ review.rejectionReason }}
-    </div>
-
-    <!-- Action buttons -->
-    <div *ngIf="rejectingDocKey !== docKey" class="d-flex gap-2">
-      <button *ngIf="review.status !== 'APPROVED'" class="btn-approve btn flex-fill" style="font-size:0.75rem;padding:5px 10px;"
-        (click)="approveDoc(driver, docKey)">
-        <i class="bi bi-check-circle me-1"></i>Approve
-      </button>
-      <button *ngIf="review.status !== 'REJECTED'" class="btn-reject btn flex-fill" style="font-size:0.75rem;padding:5px 10px;"
-        (click)="startRejectDoc(docKey)">
-        <i class="bi bi-x-circle me-1"></i>Reject
-      </button>
-    </div>
-
     <!-- Inline rejection reason input -->
-    <div *ngIf="rejectingDocKey === docKey" class="mt-1">
+    <div *ngIf="rejectingDocKey === docKey" class="mb-3">
       <input
         type="text"
         class="form-control form-control-sm mb-2"
         [(ngModel)]="rejectReasonInput"
         placeholder="Reason for rejection (optional)"
-        style="font-size:0.8rem;border-radius:8px;" />
+        style="font-size:0.8rem;border-radius:8px;max-width:420px;" />
       <div class="d-flex gap-2">
-        <button class="btn-reject btn flex-fill" style="font-size:0.75rem;padding:5px 10px;"
-          (click)="confirmRejectDoc(driver, docKey)">
+        <button class="btn-reject btn" style="font-size:0.75rem;padding:6px 16px;" (click)="confirmRejectDoc(driver, docKey)">
           <i class="bi bi-x-circle me-1"></i>Confirm Reject
         </button>
-        <button class="btn btn-sm" style="background:#f1f5f9;color:#64748b;border:1px solid #e2e8f0;border-radius:8px;font-size:0.75rem;padding:5px 10px;"
+        <button class="btn btn-sm" style="background:#f1f5f9;color:#64748b;border:1px solid #e2e8f0;border-radius:8px;font-size:0.75rem;padding:6px 16px;"
           (click)="cancelRejectDoc()">
           Cancel
         </button>
+      </div>
+    </div>
+
+    <!-- Rejection reason -->
+    <div *ngIf="review.status === 'REJECTED' && review.rejectionReason" class="doc-reject-reason mb-3">
+      <i class="bi bi-info-circle me-1"></i>{{ review.rejectionReason }}
+    </div>
+
+    <!-- Photos: view/zoom only, no per-photo controls -->
+    <div class="row g-3">
+      <div class="col-md-6" *ngFor="let img of images">
+        <div class="doc-preview-wrapper" style="height:170px;" (click)="zoomImage(img.url, img.label)">
+          <img [src]="img.url" [alt]="img.label" class="w-100 h-100 object-fit-cover" />
+          <div class="doc-overlay">
+            <span class="btn btn-sm btn-light rounded-pill shadow fw-semibold px-3">
+              <i class="bi bi-zoom-in me-1"></i>Zoom
+            </span>
+          </div>
+        </div>
+        <div class="text-center text-secondary small mt-1">{{ img.label }}</div>
       </div>
     </div>
   </div>

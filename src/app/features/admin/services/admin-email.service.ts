@@ -66,6 +66,9 @@ export class AdminEmailService {
 
   /** Remove an admin email address */
   removeAdminEmail(email: string): { success: boolean; message: string } {
+    if (this.adminEmailsSubject.value.length <= 1) {
+    return { success: false, message: 'At least one admin email must remain in the system.' };
+  }
     const currentEmails = this.getAdminEmails();
 
     if (currentEmails.length <= 1) {

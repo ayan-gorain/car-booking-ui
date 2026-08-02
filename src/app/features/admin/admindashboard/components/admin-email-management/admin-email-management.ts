@@ -109,27 +109,41 @@ export class AdminEmailManagement implements OnInit, OnDestroy {
   }
 
   executeDelete(): void {
-    if (!this.emailToDelete) return;
+  if (!this.emailToDelete) return;
 
-    const email = this.emailToDelete;
+  // Defensive check: never allow removing the last admin email
+  if (this.adminEmails.length <= 1) {
+    this.errorMessage = 'At least one admin email must remain in the system.';
+    this.successMessage = null;
     this.emailToDelete = null;
-
-    const result = this.adminEmailService.removeAdminEmail(email);
-
-    if (result.success) {
-      this.successMessage = result.message;
-      this.errorMessage = null;
-    } else {
-      this.errorMessage = result.message;
-      this.successMessage = null;
-    }
-
     this.cdr.detectChanges();
 
     setTimeout(() => {
-      this.successMessage = null;
       this.errorMessage = null;
       this.cdr.detectChanges();
     }, 4000);
+    return;
   }
+
+  const email = this.emailToDelete;
+  this.emailToDelete = null;
+
+  const result = this.adminEmailService.removeAdminEmail(email);
+
+  if (result.success) {
+    this.successMessage = result.message;
+    this.errorMessage = null;
+  } else {
+    this.errorMessage = result.message;
+    this.successMessage = null;
+  }
+
+  this.cdr.detectChanges();
+
+  setTimeout(() => {
+    this.successMessage = null;
+    this.errorMessage = null;
+    this.cdr.detectChanges();
+  }, 4000);
+}
 }

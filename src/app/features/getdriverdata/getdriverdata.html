@@ -7,7 +7,7 @@
       <i class="bi bi-collection-fill text-primary fs-3"></i>
     </div>
     <h3 class="fw-bold mb-1">Your Fleet</h3>
-    <p class="text-secondary small mb-0">View, edit, or remove any registered vehicle</p>
+    <p class="text-secondary small mb-0">View, edit, remove, or book a ride for any registered vehicle</p>
   </div>
 
   <!-- Alerts -->
@@ -38,9 +38,10 @@
 
     <div class="row g-3">
       <div class="col-sm-6 col-lg-4" *ngFor="let vehicle of vehicles">
-        <div class="card border-0 shadow-sm rounded-4 h-100 fleet-card-square"
+        <div class="card border-0 shadow-sm rounded-4 h-100"
+          style="overflow: visible; height: auto;"
           [style.borderTop]="'4px solid ' + vehicleAccent(vehicle.vehicleType)">
-          <div class="card-body p-3 p-md-4 d-flex flex-column h-100">
+          <div class="card-body p-3 p-md-4 d-flex flex-column h-100" style="overflow: visible; height: auto;">
 
             <div class="d-flex justify-content-end gap-2 mb-2">
               <button class="btn btn-outline-primary btn-sm rounded-3" type="button" (click)="startEdit(vehicle)" title="Edit vehicle">
@@ -51,7 +52,7 @@
               </button>
             </div>
 
-            <div class="d-flex flex-column align-items-center text-center flex-grow-1 justify-content-center overflow-auto">
+            <div class="d-flex flex-column align-items-center text-center flex-grow-1 justify-content-center">
               <div class="d-inline-flex align-items-center justify-content-center rounded-circle flex-shrink-0 mb-3"
                 [style.background]="vehicleAccent(vehicle.vehicleType) + '1a'" style="width:56px;height:56px;">
                 <i class="bi fs-4" [ngClass]="vehicleIcon(vehicle.vehicleType)" [style.color]="vehicleAccent(vehicle.vehicleType)"></i>
@@ -75,6 +76,10 @@
               </div>
             </div>
 
+            <button type="button" class="btn btn-primary rounded-3 fw-semibold w-100 mt-3" (click)="bookRide(vehicle)">
+              <i class="bi bi-signpost-split-fill me-1"></i> Book a Ride
+            </button>
+
           </div>
         </div>
       </div>
@@ -83,8 +88,9 @@
   </div>
 
   <!-- Edit modal -->
-  <div class="modal-backdrop-custom" *ngIf="editingVehicle as vehicle" (click)="cancelEdit()">
-    <div class="card border-0 shadow rounded-4 modal-edit" (click)="$event.stopPropagation()">
+  <div class="position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center bg-dark bg-opacity-50 p-3"
+    style="z-index: 1055; overflow-y: auto;" *ngIf="editingVehicle as vehicle" (click)="cancelEdit()">
+    <div class="card border-0 shadow-lg rounded-4 my-4" style="max-width: 640px; width: 100%;" (click)="$event.stopPropagation()">
       <div class="card-body p-4 p-md-5">
         <form [formGroup]="editForm" (ngSubmit)="saveEdit(vehicle)" novalidate>
 
@@ -99,9 +105,9 @@
             <label class="form-label small fw-semibold">Registration Number</label>
             <input type="text" class="form-control text-uppercase" formControlName="registrationNumber"
               [class.is-invalid]="f['registrationNumber'].invalid && f['registrationNumber'].touched">
-            <small class="text-danger small mt-1 d-block" *ngIf="f['registrationNumber'].touched && f['registrationNumber'].invalid">
+            <div class="invalid-feedback" *ngIf="f['registrationNumber'].touched && f['registrationNumber'].invalid">
               Must be 4–15 characters.
-            </small>
+            </div>
           </div>
 
           <div class="row g-3 mb-3">
@@ -109,17 +115,17 @@
               <label class="form-label small fw-semibold">Manufacturer</label>
               <input type="text" class="form-control" formControlName="manufacturer"
                 [class.is-invalid]="f['manufacturer'].invalid && f['manufacturer'].touched">
-              <small class="text-danger small mt-1 d-block" *ngIf="f['manufacturer'].touched && f['manufacturer'].invalid">
+              <div class="invalid-feedback" *ngIf="f['manufacturer'].touched && f['manufacturer'].invalid">
                 Manufacturer is required.
-              </small>
+              </div>
             </div>
             <div class="col-md-6">
               <label class="form-label small fw-semibold">Model</label>
               <input type="text" class="form-control" formControlName="model"
                 [class.is-invalid]="f['model'].invalid && f['model'].touched">
-              <small class="text-danger small mt-1 d-block" *ngIf="f['model'].touched && f['model'].invalid">
+              <div class="invalid-feedback" *ngIf="f['model'].touched && f['model'].invalid">
                 Model is required.
-              </small>
+              </div>
             </div>
           </div>
 
@@ -132,9 +138,9 @@
               <label class="form-label small fw-semibold">Color</label>
               <input type="text" class="form-control" formControlName="color"
                 [class.is-invalid]="f['color'].invalid && f['color'].touched">
-              <small class="text-danger small mt-1 d-block" *ngIf="f['color'].touched && f['color'].invalid">
+              <div class="invalid-feedback" *ngIf="f['color'].touched && f['color'].invalid">
                 Color is required.
-              </small>
+              </div>
             </div>
           </div>
 
@@ -142,9 +148,9 @@
             <label class="form-label small fw-semibold">Manufacturing Year</label>
             <input type="number" class="form-control" formControlName="manufacturingYear" [min]="1980" [max]="currentYear"
               [class.is-invalid]="f['manufacturingYear'].invalid && f['manufacturingYear'].touched">
-            <small class="text-danger small mt-1 d-block" *ngIf="f['manufacturingYear'].touched && f['manufacturingYear'].invalid">
+            <div class="invalid-feedback" *ngIf="f['manufacturingYear'].touched && f['manufacturingYear'].invalid">
               Enter a year between 1980 and {{ currentYear }}.
-            </small>
+            </div>
           </div>
 
           <div class="row g-3 mb-3">
@@ -191,7 +197,7 @@
                   <i class="bi bi-snow text-primary me-2"></i>AC
                 </label>
                 <div class="form-check form-switch mb-0">
-                  <input class="form-check-input" type="checkbox" formControlName="airConditioned">
+                  <input class="form-check-input" type="checkbox" role="switch" formControlName="airConditioned">
                 </div>
               </div>
             </div>
@@ -213,8 +219,9 @@
   </div>
 
   <!-- Delete confirmation modal -->
-  <div class="modal-backdrop-custom" *ngIf="vehicleToDelete" (click)="cancelDelete()">
-    <div class="card border-0 shadow rounded-4 p-4 modal-confirm" (click)="$event.stopPropagation()">
+  <div class="position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center bg-dark bg-opacity-50 p-3"
+    style="z-index: 1055;" *ngIf="vehicleToDelete" (click)="cancelDelete()">
+    <div class="card border-0 shadow-lg rounded-4 p-4" style="max-width: 380px; width: 100%;" (click)="$event.stopPropagation()">
       <div class="d-inline-flex align-items-center justify-content-center rounded-circle bg-danger bg-opacity-10 mb-3 mx-auto"
         style="width:52px;height:52px;">
         <i class="bi bi-exclamation-triangle-fill text-danger fs-4"></i>

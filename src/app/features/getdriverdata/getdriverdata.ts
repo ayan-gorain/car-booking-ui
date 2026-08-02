@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
 import {
   FormBuilder,
   FormGroup,
@@ -55,7 +56,7 @@ export class Getdriverdata implements OnInit {
   successMessage: string | null = null;
   errorMessage: string | null = null;
 
-  constructor(private fb: FormBuilder, private cdr: ChangeDetectorRef) {
+  constructor(private fb: FormBuilder, private cdr: ChangeDetectorRef, private router: Router) {
     this.editForm = this.fb.group({
       registrationNumber: ['', [Validators.required, Validators.minLength(4), Validators.maxLength(15)]],
       manufacturer: ['', [Validators.required]],
@@ -277,5 +278,24 @@ export class Getdriverdata implements OnInit {
     this.successMessage = 'Vehicle removed successfully.';
     this.cdr.detectChanges();
     setTimeout(() => { this.successMessage = null; this.cdr.detectChanges(); }, 4000);
+  }
+
+  /** Navigate to the trip-booking page for a given vehicle, passing a
+   *  lightweight summary via router state so the next page can render
+   *  immediately without another API round-trip. */
+  bookRide(vehicle: VehicleBooking): void {
+    this.router.navigate(['/trip-booking', vehicle.id], {
+      state: {
+        vehicle: {
+          id: vehicle.id,
+          registrationNumber: vehicle.registrationNumber,
+          manufacturer: vehicle.manufacturer,
+          model: vehicle.model,
+          variant: vehicle.variant,
+          vehicleType: vehicle.vehicleType,
+          seatCapacity: vehicle.seatCapacity,
+        },
+      },
+    });
   }
 }

@@ -1,0 +1,253 @@
+<div class="container-fluid py-5 px-3" style="max-width: 820px;">
+
+  <!-- Header -->
+  <div class="d-flex align-items-center gap-3 mb-4">
+    <button type="button" class="btn btn-light rounded-circle flex-shrink-0 d-inline-flex align-items-center justify-content-center border"
+      style="width:44px;height:44px;" (click)="goBack()" title="Back to fleet">
+      <i class="bi bi-arrow-left"></i>
+    </button>
+    <div>
+      <h3 class="fw-bold mb-1">Publish a Ride</h3>
+      <p class="text-secondary small mb-0">Set the route, schedule, and seat pricing for this trip</p>
+    </div>
+  </div>
+
+  <!-- Alerts -->
+  <div class="alert alert-success d-flex align-items-center gap-2 py-2 shadow-sm border-0 rounded-3" *ngIf="successMessage">
+    <i class="bi bi-check-circle-fill"></i>
+    <span>{{ successMessage }}</span>
+  </div>
+  <div class="alert alert-danger d-flex align-items-start gap-2 py-2 shadow-sm border-0 rounded-3" *ngIf="errorMessage">
+    <i class="bi bi-exclamation-triangle-fill mt-1"></i>
+    <span>{{ errorMessage }}</span>
+  </div>
+
+  <!-- Vehicle summary -->
+  <div class="card border-0 shadow-sm rounded-4 mb-4" *ngIf="vehicle"
+    [style.borderLeft]="'4px solid ' + vehicleAccent(vehicle.vehicleType)">
+    <div class="card-body p-3 d-flex align-items-center gap-3">
+      <div class="d-inline-flex align-items-center justify-content-center rounded-circle flex-shrink-0"
+        [style.background]="vehicleAccent(vehicle.vehicleType) + '1a'" style="width:52px;height:52px;">
+        <i class="bi fs-4" [ngClass]="vehicleIcon(vehicle.vehicleType)" [style.color]="vehicleAccent(vehicle.vehicleType)"></i>
+      </div>
+      <div class="flex-grow-1">
+        <div class="text-uppercase text-secondary small fw-bold mb-1">Booking a ride for</div>
+        <div class="d-flex align-items-center gap-2 flex-wrap">
+          <h6 class="fw-bold mb-0">{{ vehicle.manufacturer }} {{ vehicle.model }}</h6>
+          <span class="badge rounded-pill text-bg-light border" *ngIf="vehicle.variant">{{ vehicle.variant }}</span>
+        </div>
+        <div class="text-secondary small mt-1">
+          <span class="fw-semibold">{{ vehicle.registrationNumber }}</span>
+          <span class="mx-1">&middot;</span>{{ vehicle.seatCapacity }} seats
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="alert alert-warning d-flex align-items-center gap-2 py-2 shadow-sm border-0 rounded-3 mb-4" *ngIf="!vehicle">
+    <i class="bi bi-info-circle-fill"></i>
+    <span>No vehicle details were passed to this page. Go back to your fleet and choose "Book a Ride" on a vehicle.</span>
+  </div>
+
+  <div class="card border-0 shadow rounded-4 mb-5">
+    <div class="card-body p-4 p-md-5">
+
+      <form [formGroup]="tripForm" (ngSubmit)="onSubmit()" novalidate>
+
+        <!-- ══════════ Route ══════════ -->
+        <p class="text-uppercase small fw-bold text-primary mb-4 pb-2 border-bottom">
+          <i class="bi bi-signpost-split-fill me-1"></i> Route
+        </p>
+
+        <div class="row g-3 mb-3">
+          <div class="col-md-6">
+            <label class="form-label small fw-semibold"><i class="bi bi-geo-alt-fill text-success me-1"></i>Source City</label>
+            <input type="text" class="form-control" formControlName="sourceCity" placeholder="e.g. Hyderabad"
+              [class.is-invalid]="f['sourceCity'].invalid && f['sourceCity'].touched">
+            <div class="invalid-feedback" *ngIf="f['sourceCity'].touched && f['sourceCity'].invalid">
+              Source city is required.
+            </div>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label small fw-semibold">Pickup Address</label>
+            <input type="text" class="form-control" formControlName="sourceAddress" placeholder="e.g. Gachibowli, near DLF Cyber City"
+              [class.is-invalid]="f['sourceAddress'].invalid && f['sourceAddress'].touched">
+            <div class="invalid-feedback" *ngIf="f['sourceAddress'].touched && f['sourceAddress'].invalid">
+              Pickup address is required.
+            </div>
+          </div>
+        </div>
+
+        <div class="row g-3 mb-2">
+          <div class="col-md-6">
+            <label class="form-label small fw-semibold"><i class="bi bi-geo-alt-fill text-danger me-1"></i>Destination City</label>
+            <input type="text" class="form-control" formControlName="destinationCity" placeholder="e.g. Bengaluru"
+              [class.is-invalid]="f['destinationCity'].invalid && f['destinationCity'].touched">
+            <div class="invalid-feedback" *ngIf="f['destinationCity'].touched && f['destinationCity'].invalid">
+              Destination city is required.
+            </div>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label small fw-semibold">Drop Address</label>
+            <input type="text" class="form-control" formControlName="destinationAddress" placeholder="e.g. Whitefield, ITPL Main Road"
+              [class.is-invalid]="f['destinationAddress'].invalid && f['destinationAddress'].touched">
+            <div class="invalid-feedback" *ngIf="f['destinationAddress'].touched && f['destinationAddress'].invalid">
+              Drop address is required.
+            </div>
+          </div>
+        </div>
+
+        <!-- ══════════ Schedule ══════════ -->
+        <p class="text-uppercase small fw-bold text-primary mb-4 pb-2 mt-5 border-bottom">
+          <i class="bi bi-calendar-week-fill me-1"></i> Schedule
+        </p>
+
+        <div class="row g-3 mb-2">
+          <div class="col-md-6">
+            <label class="form-label small fw-semibold">Departure Time</label>
+            <input type="datetime-local" class="form-control" formControlName="departureTime"
+              [class.is-invalid]="f['departureTime'].invalid && f['departureTime'].touched">
+            <div class="invalid-feedback" *ngIf="f['departureTime'].touched && f['departureTime'].invalid">
+              Departure time is required.
+            </div>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label small fw-semibold">Estimated Arrival Time</label>
+            <input type="datetime-local" class="form-control" formControlName="estimatedArrivalTime"
+              [class.is-invalid]="f['estimatedArrivalTime'].invalid && f['estimatedArrivalTime'].touched">
+            <div class="invalid-feedback" *ngIf="f['estimatedArrivalTime'].touched && f['estimatedArrivalTime'].invalid">
+              Estimated arrival time is required.
+            </div>
+          </div>
+        </div>
+        <div class="alert alert-warning py-2 small mb-2 border-0 rounded-3"
+          *ngIf="tripForm.errors?.['arrivalBeforeDeparture'] && f['estimatedArrivalTime'].touched">
+          <i class="bi bi-exclamation-triangle-fill me-1"></i>
+          Estimated arrival must be after the departure time.
+        </div>
+
+        <!-- ══════════ Pricing & Seats ══════════ -->
+        <p class="text-uppercase small fw-bold text-primary mb-4 pb-2 mt-5 border-bottom">
+          <i class="bi bi-cash-coin me-1"></i> Pricing & Seats
+        </p>
+
+        <div class="row g-3 mb-2">
+          <div class="col-md-4">
+            <label class="form-label small fw-semibold">Price per Seat (₹)</label>
+            <div class="input-group">
+              <span class="input-group-text">₹</span>
+              <input type="number" class="form-control" formControlName="pricePerSeat" placeholder="e.g. 750" min="1"
+                [class.is-invalid]="f['pricePerSeat'].invalid && f['pricePerSeat'].touched">
+              <div class="invalid-feedback" *ngIf="f['pricePerSeat'].touched && f['pricePerSeat'].invalid">
+                Enter a valid price.
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <label class="form-label small fw-semibold">Total Seats</label>
+            <input type="number" class="form-control" formControlName="totalSeats" placeholder="e.g. 4" min="1" max="60"
+              [class.is-invalid]="f['totalSeats'].invalid && f['totalSeats'].touched">
+            <div class="invalid-feedback" *ngIf="f['totalSeats'].touched && f['totalSeats'].invalid">
+              Enter a value between 1 and 60.
+            </div>
+          </div>
+          <div class="col-md-4">
+            <label class="form-label small fw-semibold">Available Seats</label>
+            <input type="number" class="form-control" formControlName="availableSeats" placeholder="e.g. 3" min="1"
+              [class.is-invalid]="f['availableSeats'].invalid && f['availableSeats'].touched">
+            <div class="invalid-feedback" *ngIf="f['availableSeats'].touched && f['availableSeats'].invalid">
+              Enter a valid seat count.
+            </div>
+          </div>
+        </div>
+        <div class="alert alert-warning py-2 small mb-2 border-0 rounded-3"
+          *ngIf="tripForm.errors?.['seatsExceedTotal'] && f['availableSeats'].touched">
+          <i class="bi bi-exclamation-triangle-fill me-1"></i>
+          Available seats can't be more than total seats.
+        </div>
+
+        <!-- ══════════ Trip Preferences ══════════ -->
+        <p class="text-uppercase small fw-bold text-primary mb-4 pb-2 mt-5 border-bottom">
+          <i class="bi bi-sliders me-1"></i> Trip Preferences
+        </p>
+
+        <div class="row g-2 mb-2">
+          <div class="col-sm-6">
+            <div class="d-flex align-items-center justify-content-between border rounded-3 p-3 bg-light bg-opacity-50 h-100">
+              <label class="mb-0 small fw-semibold" style="cursor: pointer;">
+                <i class="bi bi-lightning-charge-fill text-warning me-2"></i>Instant Booking
+              </label>
+              <div class="form-check form-switch mb-0">
+                <input class="form-check-input" type="checkbox" role="switch" formControlName="instantBooking">
+              </div>
+            </div>
+          </div>
+          <div class="col-sm-6">
+            <div class="d-flex align-items-center justify-content-between border rounded-3 p-3 bg-light bg-opacity-50 h-100">
+              <label class="mb-0 small fw-semibold" style="cursor: pointer;">
+                <i class="bi bi-gender-female text-danger me-2"></i>Women Only
+              </label>
+              <div class="form-check form-switch mb-0">
+                <input class="form-check-input" type="checkbox" role="switch" formControlName="womenOnly">
+              </div>
+            </div>
+          </div>
+          <div class="col-sm-6">
+            <div class="d-flex align-items-center justify-content-between border rounded-3 p-3 bg-light bg-opacity-50 h-100">
+              <label class="mb-0 small fw-semibold" style="cursor: pointer;">
+                <i class="bi bi-smoking text-secondary me-2"></i>Smoking Allowed
+              </label>
+              <div class="form-check form-switch mb-0">
+                <input class="form-check-input" type="checkbox" role="switch" formControlName="smokingAllowed">
+              </div>
+            </div>
+          </div>
+          <div class="col-sm-6">
+            <div class="d-flex align-items-center justify-content-between border rounded-3 p-3 bg-light bg-opacity-50 h-100">
+              <label class="mb-0 small fw-semibold" style="cursor: pointer;">
+                <i class="bi bi-paw-fill text-success me-2"></i>Pets Allowed
+              </label>
+              <div class="form-check form-switch mb-0">
+                <input class="form-check-input" type="checkbox" role="switch" formControlName="petsAllowed">
+              </div>
+            </div>
+          </div>
+          <div class="col-sm-6">
+            <div class="d-flex align-items-center justify-content-between border rounded-3 p-3 bg-light bg-opacity-50 h-100">
+              <label class="mb-0 small fw-semibold" style="cursor: pointer;">
+                <i class="bi bi-briefcase-fill text-primary me-2"></i>Luggage Allowed
+              </label>
+              <div class="form-check form-switch mb-0">
+                <input class="form-check-input" type="checkbox" role="switch" formControlName="luggageAllowed">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ══════════ Description ══════════ -->
+        <p class="text-uppercase small fw-bold text-primary mb-4 pb-2 mt-5 border-bottom">
+          <i class="bi bi-card-text me-1"></i> Description <span class="fw-normal text-secondary normal-case">(optional)</span>
+        </p>
+
+        <div class="mb-2">
+          <textarea class="form-control" formControlName="description" rows="3"
+            placeholder="Any extra details for riders — meeting point landmarks, stops along the way, etc."></textarea>
+        </div>
+
+        <!-- ── Submit ── -->
+        <div class="d-flex gap-2 mt-4 pt-3 border-top">
+          <button type="button" class="btn btn-outline-secondary rounded-3 flex-grow-1 py-2" (click)="goBack()" [disabled]="isSubmitting">
+            Cancel
+          </button>
+          <button type="submit" class="btn btn-primary rounded-3 flex-grow-1 fw-semibold py-2" [disabled]="isSubmitting">
+            <span class="spinner-border spinner-border-sm me-2" *ngIf="isSubmitting"></span>
+            <i class="bi bi-send-fill me-1" *ngIf="!isSubmitting"></i>
+            {{ isSubmitting ? 'Publishing...' : 'Publish Ride' }}
+          </button>
+        </div>
+
+      </form>
+    </div>
+  </div>
+
+</div>
